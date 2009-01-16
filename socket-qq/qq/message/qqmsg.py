@@ -92,12 +92,12 @@ class inqqMessage(bytemsg.ByteMessage):
                 self.body.fields['type1'],\
                 self.body.fields['session_id'],\
                 self.body.fields['send_time'],\
-                self.body.fields['unkown'],\
+                self.body.fields['unknown'],\
                 self.body.fields['send_face'],\
                 self.body.fields['send_font'],\
                 self.body.fields['msg_pass'],\
                 self.body.fields['pass_id'],\
-                self.body.fields['pass_id'],\
+                self.body.fields['msg_id'],\
                 self.body.fields['msg_type'],\
                 self.body.fields['msg_data'],\
                 self.body.fields['msg_link'],\
@@ -105,7 +105,7 @@ class inqqMessage(bytemsg.ByteMessage):
                 self.body.fields['msg_red'],\
                 self.body.fields['msg_green'],\
                 self.body.fields['msg_blue'],\
-                self.body.fields['unknown'],\
+                self.body.fields['unknown1'],\
                 self.body.fields['encoding'],\
                 self.body.fields['info'],\
                 self.body.fields['len']=\
@@ -120,12 +120,12 @@ class inqqMessage(bytemsg.ByteMessage):
                 self.body.fields['type1'],\
                 self.body.fields['session_id'],\
                 self.body.fields['send_time'],\
-                self.body.fields['unkown'],\
+                self.body.fields['unknown'],\
                 self.body.fields['send_face'],\
                 self.body.fields['send_font'],\
                 self.body.fields['msg_pass'],\
                 self.body.fields['pass_id'],\
-                self.body.fields['pass_id'],\
+                self.body.fields['msg_id'],\
                 self.body.fields['msg_type'],\
                 self.body.fields['msg_data'],\
                 self.body.fields['msg_link'],\
@@ -133,11 +133,11 @@ class inqqMessage(bytemsg.ByteMessage):
                 self.body.fields['msg_red'],\
                 self.body.fields['msg_green'],\
                 self.body.fields['msg_blue'],\
-                self.body.fields['unknown'],\
+                self.body.fields['unknown1'],\
                 self.body.fields['encoding'],\
                 self.body.fields['info'],\
                 self.body.fields['len']=\
-                struct.unpack('>HII16sHHIBBIBBHB'+str(len(packet)-65-14)+'s'+'2sBBBBBH4sB',packet[20:])
+                struct.unpack('>H'+str(len(packet)-65-14)+'s'+'2sBBBBBH4sB',packet[20:])
         #手机短消息普通用户
         elif self.body.fields['type'] == 11:
             self.body.fields['type'] = basic.msg_type[0x000BL]
@@ -171,6 +171,23 @@ class inqqMessage(bytemsg.ByteMessage):
         #固定群消息
         elif self.body.fields['type'] == 0x002BL :
             self.body.fields['type'] = basic.msg_type[0x002BL]
+            self.body.fields['group_id'],\
+                self.body.fields['group_type'],\
+                self.body.fields['send_qq'],\
+                self.body.fields['unknown'],\
+                self.body.fields['msg_sq'],\
+                self.body.fields['time'],\
+                self.body.fields['ver_id'],\
+                self.body.fields['len'],\
+                self.body.fields['con_type'],\
+                self.body.fields['msg_pass'],\
+                self.body.fields['msg_pass_id'],\
+                self.body.fields['msg_id'],\
+                self.body.fields['unknown1']=\
+                struct.unpack('>IBIHHIIHHBBHI',packet[20:53])
+            self.body.fields['msg_data']=\
+                struct.unpack('>'+str(self.body.fields['len']-10-13)+'s',packet[53:53+self.body.fields['len']-10-13])                
+                
         #系统消息
         elif self.body.fields['type'] == 0x0030L :
             self.body.fields['type'] = basic.msg_type[0x0030L]
@@ -460,7 +477,37 @@ class outqqMessage(bytemsg.ByteMessage):
         pass
 
     def pack_qq_group_cmd(self, fields):
-        pass
+        print b2a_hex(struct.pack('>BIH'+str(len(fields['msg_data']))+'s'+\
+                '2sBBBBBH4s',
+                fields['cmd_type'],
+                fields['recv_group'],
+                fields['len'],
+                fields['msg_data'],
+                fields['msg_link'],
+                fields['msg_end'],
+                fields['msg_red'],
+                fields['msg_green'],
+                fields['msg_blue'],
+                fields['unknown'],
+                fields['encoding'],
+                fields['info']
+                ))
+        return struct.pack('>BIH'+str(len(fields['msg_data']))+'s'+\
+                '2sBBBBBH4sB',
+                fields['cmd_type'],
+                fields['recv_group'],
+                fields['len'],
+                fields['msg_data'],
+                fields['msg_link'],
+                fields['msg_end'],
+                fields['msg_red'],
+                fields['msg_green'],
+                fields['msg_blue'],
+                fields['unknown'],
+                fields['encoding'],
+                fields['info'],
+                fields['end_len']
+                )
 
     def pack_qq_test(self, fields):
         pass
