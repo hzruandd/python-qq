@@ -88,7 +88,11 @@ class GuiProtocol(qqlib.qqClientProtocol):
         #尾部分长度固定为9
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendDataToQueue(message)
-
+        
+    def send_replay(self,message):
+        if int(b2a_hex(message.body.fields['status'][0])) != basic.QQ_replay['ok']:
+            self.printl( '消息发送失败')
+            
     def recv(self, message):
         #将收到的消息的前16位返回给服务器，表示已经收到消息
         if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':

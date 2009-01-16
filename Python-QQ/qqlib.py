@@ -36,7 +36,7 @@ class qq:
         self.login=0
         self.friend_list={}
         self.friend_online={}
-        #服务器
+        #服务器，这里是个根服务器，将会根据重定向包来决定真正登陆的服务器的IP地址
         self.server=("61.144.238.145",8000)
         self.log=log
         self.start()
@@ -91,6 +91,9 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_chang_status(self, message):
+        '''
+        到这里登陆过程的自动处理完成，开始循环发送活动包，表示自己在线。
+        '''
         self.qq.log.info("您当前的状态为：在线")
         #开始每隔1分钟发送一次在线包
         defer.succeed(self.alive())
@@ -102,8 +105,10 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_send(self, message):
-        if int(b2a_hex(message.body.fields['status'][0])) != basic.QQ_replay['ok']:
-            self.printl( '消息发送失败')
+        '''
+        当发送消息后，服务器返回的包中，状态不等于00，则没有发送成功。
+        '''
+        self.send_replay(message)
 
     def on_qq_recv(self, message):
         self.recv(message)
@@ -118,6 +123,10 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_login(self,message):
+        '''
+        这个也是登陆过程中自动处理的一部分，当登陆成功后，self.qq.login这个属性为1，否则则没有登陆成功。
+        调用了lib后可以通过这个属性来判断是否登陆成功。
+        '''
         if message.body.fields['status'][0]==1:
             #self.transport.connect(util.ip2string(message.body.fields['ip']),8000)
             self.qq.server=(util.ip2string(message.body.fields['ip']),8000)
@@ -136,6 +145,9 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
                 self.sendDataToQueue(message)
 
     def on_qq_get_friend_list(self, message):
+        '''
+        获取好友列表，根据是否还有下一页来判断，是否继续取好友列表。
+        '''
         if message.body.fields['start'][0]!=65535:
             defer.succeed(self.get_friend_list(message.body.fields['start'][0]))
             self.qq.friend_list.update(message.body.fields['data'])
@@ -147,6 +159,9 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
                 print str(i)+':'+self.qq.friend_list[i]['name']
 
     def on_qq_get_friend_online(self, message):
+        '''
+        获取在线好友列表，根据是否还有下一页来判断，是否继续取在线好友列表。
+        '''
         if message.body.fields['start'][0]!=255:
             defer.succeed(self.get_friend_online(message.body.fields['start'][0]))
             self.qq.friend_online.update(message.body.fields['data'])
@@ -191,6 +206,11 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_pre_login(self,message):
+        '''
+        当收到登陆令牌后，判断令牌是否正确。
+        然后发送qq_login的报文开始登陆。
+        由于这个部分是自动处理的，所以当发送登陆令牌请求包后，会自动工作到改变在线状态为止。
+        '''
         status=message.body.fields['status']
         pre_len=message.body.fields['pre_len']
         pre=message.body.fields['pre']
