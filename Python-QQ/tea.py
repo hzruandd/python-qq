@@ -1,4 +1,4 @@
-# -*- coding: cp936 -*-
+﻿# -*- coding: utf-8 -*-
 
 """
 The MIT License

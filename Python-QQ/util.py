@@ -1,14 +1,14 @@
-# -*- coding: cp936 -*-
+ï»¿# -*- coding: utf-8 -*-
 
-"""Python-QQ£¬³£ÓÃº¯Êı
-×÷Õß£ºÃ·¾¢ËÉ
-Ê±¼ä£º2005-7-13
+"""Python-QQï¼Œå¸¸ç”¨å‡½æ•°
+ä½œè€…ï¼šæ¢…åŠ²æ¾
+æ—¶é—´ï¼š2005-7-13
 """
 
 
 from random import randint as _randint
 
-#Éú³ÉQQËùĞèÒªµÄ³õÊ¼»¯ÃÜÔ¿£¬ÓÃÓÚµÇÂ½°ü¡£
+#ç”ŸæˆQQæ‰€éœ€è¦çš„åˆå§‹åŒ–å¯†é’¥ï¼Œç”¨äºç™»é™†åŒ…ã€‚
 def initkey():
     i=0
     fills=''
@@ -17,8 +17,8 @@ def initkey():
         i += 1
     return fills
 
-#ÒòÎªQQ·µ»ØµÄipµØÖ·ÊÇ°´ÕÕÊı×Ö±íÊ¾µÄ£¬ËùÒÔĞèÒª×ª»»£¬ÕâÀïÊÇ½«Êı×Ö×ª»»Îªip×Ö·û´®ÁË¡£
-#ÒÔÏÂÁ½¸öÏà¹Øº¯ÊıÓÉdejavaÌá¹©,QQ:18505105
+#å› ä¸ºQQè¿”å›çš„ipåœ°å€æ˜¯æŒ‰ç…§æ•°å­—è¡¨ç¤ºçš„ï¼Œæ‰€ä»¥éœ€è¦è½¬æ¢ï¼Œè¿™é‡Œæ˜¯å°†æ•°å­—è½¬æ¢ä¸ºipå­—ç¬¦ä¸²äº†ã€‚
+#ä»¥ä¸‹ä¸¤ä¸ªç›¸å…³å‡½æ•°ç”±dejavaæä¾›,QQ:18505105
 def ip2string( ip ):
     a = (ip & 0xff000000) >> 24
     b = (ip & 0x00ff0000) >> 16
@@ -26,7 +26,7 @@ def ip2string( ip ):
     d = ip & 0x000000ff
     return "%d.%d.%d.%d" % (a,b,c,d)
 
-#ÕâÀïÊÇ½«ip×Ö·û´®×ª»»ÎªÊı×ÖÁË¡£
+#è¿™é‡Œæ˜¯å°†ipå­—ç¬¦ä¸²è½¬æ¢ä¸ºæ•°å­—äº†ã€‚
 def string2ip( str ):
     ss = string.split(str,'.')
     ip = 0L
@@ -35,13 +35,13 @@ def string2ip( str ):
     return ip
 
 def getCommandinfo():
-    """»ñÈ¡ÃüÁîĞÅÏ¢"""
+    """è·å–å‘½ä»¤ä¿¡æ¯"""
     return self.commandinfo
 
 def getCommandName(commandid):
-    """¸ù¾İ¶ş½øÖÆ´úÂë»ñÈ¡ÃüÁî"""
+    """æ ¹æ®äºŒè¿›åˆ¶ä»£ç è·å–å‘½ä»¤"""
     return commandinfo[commandid]
 
 def getCommandName(sname):
-    """¸ù¾İÃüÁî»ñÈ¡¶ş½øÖÆ´úÂë"""
+    """æ ¹æ®å‘½ä»¤è·å–äºŒè¿›åˆ¶ä»£ç """
     return nametoid[name]

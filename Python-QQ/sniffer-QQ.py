@@ -1,3 +1,4 @@
+﻿# -*- coding: utf-8 -*-
 import pcap ,struct 
 pack=pcap.pcap() 
 pack.setfilter('udp') 

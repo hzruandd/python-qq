@@ -1,101 +1,103 @@
-"""Python-QQ���������������Լ����ṹ��������Դ��OpenQQ��LumaQQ���Լ����������ϵĿ�Դ���ϣ�������Դ���Լ�������
-�ر���������Э��ṹ���������У�û�ж���Ѷ��˾��QQ�������з���������������ֶ�ȡ��Э��ṹ����Э�鱾��ֻҲ�����о�
-��ѧϰ���ڷ��ɽǶ��ϲ�û�ж�������Ѷ��˾����ֺ���
-���ߣ�÷����
-ʱ�䣺2005-7-13
-���ļ�ΪPython_QQ���������Ķ��塣"""
-"""Ŀǰֻ�����˻�������֣�û�п����ļ����䣬Ⱥ����Ȳ���"""
+﻿# -*- coding: utf-8 -*-
+
+"""Python-QQ，本库中命令码以及包结构，部分来源于OpenQQ、LumaQQ、以及其他网络上的开源资料，部分来源于自己分析。
+特别声明：本协议结构分析过程中，没有对腾讯公司的QQ软件进行反编译和其他类似手段取得协议结构。本协议本身只也用于研究
+和学习，在法律角度上并没有对深圳腾讯公司造成侵害。
+作者：梅劲松
+时间：2005-7-13
+本文件为Python_QQ基本变量的定义。"""
+"""目前只考虑了基本命令部分，没有考虑文件传输，群命令等操作"""
 
 
-#02Ϊ��ͷ�������붨��
+#02为包头的命令码定义
 commandinfo = {
-    0x0001L : 'qq_logout',                # �˳���½
-    0x0002L : 'qq_alive',                 # �����Լ�������״̬
-    0x0003L : 'qq_reg_id_2',              # ע����ID2
-    0x0004L : 'qq_updata_info',           # �����Լ���Ϣ
-    0x0005L : 'qq_search_user',           # �����û�
-    0x0006L : 'qq_get_user_info',         # ��ȡ������Ϣ
-    0x0009L : 'qq_add_friend_auth',       # �Ӻ�����֤
-    0x000aL : 'qq_del_friend',            # ɾ������
-    0x000bL : 'qq_buddy_auth',            # ������֤��Ϣ
-    0x000dL : 'qq_chang_status',          # �ı�����״̬
-    0x0011L : 'qq_reg_id_1',              # ע����ID1
-    0x0012L : 'qq_ack_sys_msg',           # ȷ���յ���ϵͳ��Ϣ
-    0x0016L : 'qq_send',                  # ������Ϣ
-    0x0017L : 'qq_recv',                  # ������Ϣ
-    0x001cL : 'qq_remove_self',           # ���Լ��ӶԷ������б���ɾ��
-    0x001dL : 'qq_ask_key',               # �����ļ���ת����Ƶ�ȵ���Կ
+    0x0001L : 'qq_logout',                # 退出登陆
+    0x0002L : 'qq_alive',                 # 保持自己的在线状态
+    0x0003L : 'qq_reg_id_2',              # 注册新ID2
+    0x0004L : 'qq_updata_info',           # 更新自己信息
+    0x0005L : 'qq_search_user',           # 查找用户
+    0x0006L : 'qq_get_user_info',         # 获取好友信息
+    0x0009L : 'qq_add_friend_auth',       # 加好友验证
+    0x000aL : 'qq_del_friend',            # 删除好友
+    0x000bL : 'qq_buddy_auth',            # 发送验证消息
+    0x000dL : 'qq_chang_status',          # 改变在线状态
+    0x0011L : 'qq_reg_id_1',              # 注册新ID1
+    0x0012L : 'qq_ack_sys_msg',           # 确认收到了系统消息
+    0x0016L : 'qq_send',                  # 发送消息
+    0x0017L : 'qq_recv',                  # 接收消息
+    0x001cL : 'qq_remove_self',           # 把自己从对方好友列表中删除
+    0x001dL : 'qq_ask_key',               # 请求文件中转和视频等的密钥
     0x0021L : 'qq_cell_phone_1',          # cell phone 1
-    0x0022L : 'qq_login',                 # ��½
-    0x0026L : 'qq_get_friend_list',       # ��ȡ�����б�
-    0x0027L : 'qq_get_friend_online',     # ��ȡ���ߺ���
+    0x0022L : 'qq_login',                 # 登陆
+    0x0026L : 'qq_get_friend_list',       # 获取好友列表
+    0x0027L : 'qq_get_friend_online',     # 获取在线好友
     0x0029L : 'qq_cell_photo_2',          # cell phone 2
-    0x002dL : 'qq_send_sms',              # ���Ͷ���Ϣ
-    0x0030L : 'qq_group_cmd',             # Ⱥ����
-    0x0031L : 'qq_test',                  # ���Ӳ���
-    0x003cL : 'qq_group_data',            # �������
-    0x003dL : 'qq_upload_group',          # �ϴ�������Ϣ
-    0x003eL : 'qq_friend_data',           # ����������ݲ���
-    0x0058L : 'qq_download_group',        # ���ط�����Ϣ
-    0x005cL : 'qq_level',                 # ���ѵȼ���Ϣ
-    0x005fL : 'qq_cluster_data',          # Ⱥ���ݲ���
-    0x0061L : 'qq_advanced_search',       # �߼�����
-    0x0062L : 'qq_pre_login',             # �����¼�� 
-    0x0080L : 'qq_msg_sys',               # ����ϵͳ��Ϣ
-    0x0081L : 'qq_friend_chang_status'    # ���Ѹı�״̬ 
+    0x002dL : 'qq_send_sms',              # 发送短消息
+    0x0030L : 'qq_group_cmd',             # 群命令
+    0x0031L : 'qq_test',                  # 连接测试
+    0x003cL : 'qq_group_data',            # 分组操作
+    0x003dL : 'qq_upload_group',          # 上传分组信息
+    0x003eL : 'qq_friend_data',           # 好友相关数据操作
+    0x0058L : 'qq_download_group',        # 下载分组信息
+    0x005cL : 'qq_level',                 # 好友等级信息
+    0x005fL : 'qq_cluster_data',          # 群数据操作
+    0x0061L : 'qq_advanced_search',       # 高级查找
+    0x0062L : 'qq_pre_login',             # 申请登录码 
+    0x0080L : 'qq_msg_sys',               # 接受系统消息
+    0x0081L : 'qq_friend_chang_status'    # 好友改变状态 
     }
-# ͨ�����Ʋ����ϢID�������룬��תһ�ξͿ����ˡ�
+# 通过名称查出消息ID的命令码，反转一次就可以了。
 nametoid = {}
 for k in commandinfo.keys():
     nametoid[commandinfo[k]] = k
-#��ģ��Ŀͻ��˰汾��
+#所模拟的客户端版本号
 QQ_ver=0x0c21
-#����Ҫ����ȷ�ϰ��ķ��ʹ���,�����˳���¼�ı���
+#不需要返回确认包的发送次数,比如退出登录的报文
 QQ_send_unknown=4
-#QQ�������˵Ķ˿ں���
+#QQ服务器端的端口号码
 QQ_server_port=8000
-#QQĬ�����ֱ��뷽ʽ
+#QQ默认文字编码方式
 QQ_encoding="GBK"
-#����״̬ά�ְ�����ʱ����,��λ��
+#在线状态维持包发送时间间隔,单位秒
 QQ_ative=500
 
-#02Ϊ��ͷ��Э�������QQ�ľ��󲿷ֹ��ܣ�����Ϊ02Ϊ��ͷ���ݰ��Ļ�������
+#02为包头的协议包含了QQ的决大部分功能，以下为02为包头数据包的基本数据
 
-#��ͷΪ0x02
+#包头为0x02
 QQ_02_head=0x02
-#��βΪ0x03
+#包尾为0x03
 QQ_02_end=0x03
-#���������͵��ͻ��˵İ�ͷ���ȣ��������ΰ�������ͷ���汾�������롢��ˮ��
+#服务器发送到客户端的包头长度，其中依次包括：包头、版本、命令码、流水号
 QQ_02_in_head_len=7
-#�ͻ��˷��͵��������İ�ͷ���ȣ��������ΰ�������ͷ���汾�������롢��ˮ�š��û���QQ����
+#客户端发送到服务器的包头长度，其中依次包括：包头、版本、命令码、流水号、用户的QQ号码
 QQ_02_out_head_len=11
-#�������Ϳͻ��˷��͵İ�β����
+#服务器和客户端发送的包尾长度
 QQ_02_end_len = 1
-#QQ��¼���д�16��51�ֽڵ������ǹ̶��ġ�
+#QQ登录包中从16到51字节的内容是固定的。
 QQ_login_16_51='0000000000000000000000000000000000000086cc4c352cd3736c14f6f6afc3fa33a401'
-#QQ��½���д�53��68֮��Ϊ�̶�ֵ
+#QQ登陆包中从53到68之间为固定值
 QQ_login_53_68='8d8bfaecd552174a86f9a775e632d16d'
-#QQ��½���дӵ�¼���̶����ݵ�ֵ
+#QQ登陆包中从登录码后固定内容的值
 QQ_login_end='0b04020001000000000003090000000000000001e90301000000000001f3030000000000000'+\
             '1ed0300000000000001ec0300000000000003050000000000000003'+\
             '070000000000000001ee0300000000000001ef0300000000000001eb03'         
-#��½״̬
-#����Ϊ:������½��������½
+#登陆状态
+#依次为:正常登陆、隐身登陆
 QQ_login={'normal':0x0A, 'hidden':0x28}
 
-#����״̬
-#����Ϊ:���ߡ����ߡ��뿪������
+#在线状态
+#依次为:在线、离线、离开、隐身
 QQ_status = {'online':10, 'offline':20, 'away':30, 'hidden':40}
 
-#��½ʱ��ʾ����Ƶͷ
+#登陆时显示有视频头
 QQ_video = '0001'
 
-#��ȡ�����б���ʱ���������
+#获取好友列表的时候进行排序
 QQ_friend_list_sorted = 1
         
 
-#QQ�ظ���
-#����Ϊ:�����ɹ��������¼��ɹ����ض����¼��������ķ���������¼ʱ������󡢸ı�����״̬�ɹ���������֤��Ϣ�ɹ�
+#QQ回复包
+#依次为:操作成功、申请登录码成功、重定向登录包到另外的服务器、登录时密码错误、改变在线状态成功、发送认证消息成功
 QQ_replay={'ok':0x00, 'pre_ok':0x00, 'redirect':0x01, 'pwd_error':0x05, 'change_status':0x30, 'add_friend_auth':0x30}
 
 
