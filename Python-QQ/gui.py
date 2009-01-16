@@ -2,8 +2,6 @@
 """作者:shhgs.efhilt@gmail.com"""
 
 import  wx
-#import ColorPanel
-import images
 
 from twisted.internet import wxreactor
 wxreactor.install()
@@ -17,10 +15,7 @@ import os
 
 import time
 
-colourList = [ "Aquamarine", "Black", "Blue", "Blue Violet", "Brown", "Cadet Blue",
-               "Coral", "Cornflower Blue", "Cyan", "Dark Grey", "Dark Green",
-               "Dark Olive Green",
-               ]
+import basic
 
 class GuiProtocol(qqlib.qqClientProtocol):
     def logout(self):
@@ -227,7 +222,7 @@ class LoginDialog(wx.Dialog) :
         label = wx.StaticText(self, -1, u"QQ号")
         box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
-        self.qid = wx.TextCtrl(self, -1, "", size=(80,-1))
+        self.qid = wx.TextCtrl(self, -1, "476705269", size=(80,-1))
         box.Add(self.qid, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
@@ -275,9 +270,47 @@ class About(wx.Dialog):
         label = wx.StaticText(self, -1, u"登陆失败！")
         sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
+        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
         btnsizer = wx.StdDialogButtonSizer()
         
         btn = wx.Button(self, wx.ID_OK, u'重试')
+        btn.SetDefault()
+        btnsizer.AddButton(btn)
+
+        btn = wx.Button(self, wx.ID_CANCEL, u'关闭')
+        btnsizer.AddButton(btn)
+        btnsizer.Realize()
+
+        sizer.Add(btnsizer, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+
+class Chat(wx.Dialog):
+    def __init__(self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition,   \
+            style=wx.DEFAULT_DIALOG_STYLE                                           \
+            ):
+        pre = wx.PreDialog()
+        pre.SetExtraStyle(wx.DIALOG_EX_CONTEXTHELP)
+        pre.Create(parent, ID, title, pos, size, style)
+
+        self.PostCreate(pre)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        label = wx.StaticText(self, -1, u"消息内容")
+        sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        box = wx.BoxSizer(wx.HORIZONTAL)
+        self.qid = wx.TextCtrl(self, -1, "test", size=(188,88))
+        box.Add(self.qid, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+        btnsizer = wx.StdDialogButtonSizer()
+        
+        btn = wx.Button(self, wx.ID_OK, u'发送消息')
         btn.SetDefault()
         btnsizer.AddButton(btn)
 
@@ -301,10 +334,13 @@ class GUIFrame(wx.Frame) :
 
         ##-------------------------------------------
         ##  Install Menu
-        menuBar = wx.MenuBar()
-
+        menuBar = wx.MenuBar()       
         menuAccount = wx.Menu()
-
+        test=[]
+        
+        self.lb=wx.ListBox(self, 70, (300, 50), (90, 120), test, wx.LB_SINGLE)
+        self.Bind(wx.EVT_LISTBOX_DCLICK, self.EvtListBoxDClick, self.lb)
+        
         menuAccount.Append(101, u"登录", "")
         menuAccount.Append(102, u"退出程序", "")
         self.Bind(wx.EVT_MENU, self.Login, id = 101)
@@ -320,6 +356,22 @@ class GUIFrame(wx.Frame) :
 
     ##-------------------------------------------
     ##  Menu Event
+    def EvtListBoxDClick(self, event):
+        dlg = Chat(self, -1, u"发送消息", size=(350, 200),
+                         #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
+                         style = wx.DEFAULT_DIALOG_STYLE
+                         )
+        dlg.CenterOnScreen()
+        val = dlg.ShowModal()
+        if val == wx.ID_OK:
+            print dir(self.lb)
+            print self.lb.GetLabel()
+            print self.lb.GetId()
+            print self.lb.GetParent()
+            print self.lb.GetString()
+            #self.conn.send()
+            dlg.Destroy()
+
     def LoginError(self):
         dlg = About(self, -1, u"警告", size=(350, 200),
                          #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
@@ -331,12 +383,28 @@ class GUIFrame(wx.Frame) :
             self.conn.login()
             reactor.callLater(1,self.test)
             dlg.Destroy()
+
+    def list(self):
+        i = 0
+        while i < 2:
+            if self.qq.friend_list == {}:
+                time.sleep(1)
+                i += 1
+            else:
+                test = []
+                for p in self.qq.friend_list:
+                    self.lb.Append(str(p)+':'+self.qq.friend_list[p]['name'])               
+                self.statusbar.SetStatusText(u"Python-QQ获取好友列表成功", 0)
+                return
+        self.statusbar.SetStatusText(u"Python-QQ获取好友列表失败", 0)
         
     def test(self):
             i = 0
             while i < 2:
                 if self.qq.login == 1:
                     self.statusbar.SetStatusText(u"Python-QQ登陆成功", 0)
+                    self.conn.get_friend_list(0)
+                    reactor.callLater(1,self.list)
                     return
                 time.sleep(1)
                 i += 1
