@@ -36,10 +36,8 @@ class qq:
         self.login=0
         self.friend_list={}
         self.friend_online={}
-        #建立个转发群消息的列表队列
-        self.bri=[]
         #服务器，这里是个根服务器，将会根据重定向包来决定真正登陆的服务器的IP地址
-        self.server=("61.144.238.145",8000)
+        self.server=("219.133.40.216",8000)
         self.log=log
         self.start()
         
@@ -51,7 +49,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
     """建立一个qq客户机的协议处理"""
     def __init__(self,qq):
         # 滑动窗口的大小
-        self.WINMAX = 100
+        self.WINMAX = 1024
         # 等待发送的报文队列
         self.sendQueue = Queue.Queue(self.WINMAX)
         # 已经发出的报文序列ID
@@ -99,8 +97,6 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         self.qq.log.info("您当前的状态为：在线")
         #开始每隔1分钟发送一次在线包
         defer.succeed(self.alive())
-        #启动QQ桥
-        defer.succeed(self.send_bri())
 
     def on_qq_reg_id_1(self, message):
         pass
@@ -183,7 +179,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_group_cmd(self, message):
-        self.group_cmd(message)
+        pass
 
     def on_qq_test(self, message):
         pass

@@ -37,7 +37,7 @@ class qq:
         self.friend_list={}
         self.friend_online={}
         #服务器，这里是个根服务器，将会根据重定向包来决定真正登陆的服务器的IP地址
-        self.server=("61.144.238.145",8000)
+        self.server=("219.133.40.216",8000)
         self.log=log
         self.start()
         
