@@ -129,14 +129,30 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         if message.body.fields['type'] == '固定群消息' :
             #203073669:1073669
             #211722757:9722757
+            #205237013:3237013
+            #484964496:15964496
+            
             self.printl(message.body.fields['type'])
             print str(message.body.fields['group_id'])+':'+\
+                  str(send_qq)+':'+\
                   str(message.body.fields['send_qq1'])+':'+\
                   message.body.fields['msg_data'][0]
             if message.body.fields['group_id']==1073669 :
                 defer.succeed(self.group_send(211722757,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
-            else:
+                defer.succeed(self.group_send(205237013,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(484964496,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+            elif message.body.fields['group_id']==9722757 :
                 defer.succeed(self.group_send(203073669,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(205237013,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(484964496,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+            elif message.body.fields['group_id']==3237013 :
+                defer.succeed(self.group_send(203073669,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(211722757,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(484964496,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+            elif message.body.fields['group_id']==15964496 :
+                defer.succeed(self.group_send(203073669,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(211722757,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
+                defer.succeed(self.group_send(205237013,str(message.body.fields['send_qq1'])+':'+message.body.fields['msg_data'][0]))
             #将接受到的流水号发送出去。
             message = qqmsg.outqqMessage(self.qq)
             message.head.sequence = sequence
