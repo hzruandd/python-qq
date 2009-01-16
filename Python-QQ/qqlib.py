@@ -32,6 +32,8 @@ class qq:
         self.session=chr(00)*16
         #发送消息id需要变化
         self.session_id = 0
+        #是否登陆成功，1为成功
+        self.login=0
         self.friend_list={}
         self.friend_online={}
         #服务器
@@ -124,6 +126,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
                 print message.body.fields['data'][0]
             else:
                 self.printl('登陆成功')
+                self.qq.login = 1
                 self.qq.session=message.body.fields['session']
                 message = qqmsg.outqqMessage(self.qq)
                 message.setMsgName('qq_chang_status')
