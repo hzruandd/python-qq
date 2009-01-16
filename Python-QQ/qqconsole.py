@@ -19,9 +19,20 @@ import string, os, getpass
 
 class ConsoleProtocol(qqlib.qqClientProtocol):
     def logout(self):
-        pass
+        """
+        序号不自动，指定为0xFFFF
+        用session key加密的password key
+        """
+        message = qqmsg.outqqMessage(self.qq)
+        message.setMsgName('qq_logout')
+        message.head.sequence=0xffff
+        message.body.setField('key',self.qq.md5pwd)
+        self.sendDataToQueue(message)
 
     def alive(self):
+        """
+        用户QQ号的字符串形式，其他地方是数字方式。
+        """
         message = qqmsg.outqqMessage(self.qq)
         message.setMsgName('qq_alive')
         message.body.setField('qq',str(self.qq.id))
@@ -89,8 +100,30 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendDataToQueue(message)
 
-    def recv(self):
-        pass
+    def recv(self, message):
+        #将收到的消息的前16位返回给服务器，表示已经收到消息
+        if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':
+            self.printl(message.body.fields['type'])
+        try:
+            print self.qq.friend_list[message.body.fields['send_qq']]['name']+':'+\
+                message.body.fields['msg_data']
+        except KeyError:
+            print str(message.body.fields['send_qq'])+':'+\
+                message.body.fields['msg_data']
+        send_qq = message.body.fields['send_qq']
+        recv_qq = message.body.fields['recv_qq']
+        msg_id = message.body.fields['msg_id']
+        send_ip = message.body.fields['send_ip']
+        #将接受到的流水号发送出去。
+        sequence = message.head.sequence
+        message = qqmsg.outqqMessage(self.qq)
+        message.head.sequence = sequence
+        message.setMsgName('qq_recv')
+        message.body.setField('send_qq',send_qq)
+        message.body.setField('recv_qq',recv_qq)
+        message.body.setField('msg_id',msg_id)
+        message.body.setField('send_ip',send_ip)
+        self.sendDataToQueue(message)
     
     def remove_self(self):
         pass

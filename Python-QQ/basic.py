@@ -46,6 +46,25 @@ commandinfo = {
     0x0080L : 'qq_msg_sys',               # 接受系统消息
     0x0081L : 'qq_friend_chang_status'    # 好友改变状态 
     }
+
+msg_type = {
+    9 : '好友消息',
+    10 : '陌生人消息',
+    11 : '手机短消息普通用户',
+    0x0013L : '手机短消息移动QQ用户',
+    0x0020L : '未知类型的群消息',
+    0x0021L : '加入到群',
+    0x0022L : '被踢出群',
+    0x0023L : '请求加入群',
+    0x0024L : '同意加入群',
+    0x0025L : '拒绝对方加入群',
+    0x0026L : '加入到群在创建时被加',
+    0x002AL : '临时群消息',
+    0x002BL : '固定群消息',
+    0x0030L : '系统消息',
+    0x01L : '同一个QQ号在其他地方登录'
+    }
+
 # 通过名称查出消息ID的命令码，反转一次就可以了。
 nametoid = {}
 for k in commandinfo.keys():
@@ -87,10 +106,10 @@ QQ_login={'normal':0x0A, 'hidden':0x28}
 
 #在线状态
 #依次为:在线、离线、离开、隐身
-QQ_status = {'online':10, 'offline':20, 'away':30, 'hidden':40}
+QQ_status = {'online':0x0a, 'offline':0x14, 'away':0x1e, 'hidden':0x28}
 
 #登陆时显示有视频头
-QQ_video = '0001'
+QQ_video = 0x0001
 
 #获取好友列表的时候进行排序
 QQ_friend_list_sorted = 1

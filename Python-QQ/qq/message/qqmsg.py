@@ -1,36 +1,38 @@
-# -*- coding: cp936 -*-
+# -*- coding: utf-8 -*-
 
 """
-±¾¶Î³ÌĞòÀ´Ô´ÓÚcompass£¬Äã¿ÉÒÔµ½ÕâÀïÁË½â¸ü¶à£º
+æœ¬æ®µç¨‹åºæ¥æºäºcompassï¼Œä½ å¯ä»¥åˆ°è¿™é‡Œäº†è§£æ›´å¤šï¼š
 http://wiki.woodpecker.org.cn/moin/Compass
-Ô­×÷Õß:HD<mailto:hdcola@gmail.com>
-ĞŞ¸Ä£ºÃ·¾¢ËÉ
+åŸä½œè€…:HD<mailto:hdcola@gmail.com>
+ä¿®æ”¹ï¼šæ¢…åŠ²æ¾
 """
 
 from qq.message import bytemsg
 import struct
 from binascii import b2a_hex, a2b_hex
 import util
+import basic
 
 class inqqMessage(bytemsg.ByteMessage):
-    """qq ÏûÏ¢»ùÀà"""
+    """qq æ¶ˆæ¯åŸºç±»"""
     def __init__(self,qq):
-        # ÏûÏ¢Í·
+        # æ¶ˆæ¯å¤´
         self.head = bytemsg.inByteMessageHead(self)
-        # ÏûÏ¢Ìå
+        # æ¶ˆæ¯ä½“
         self.body = bytemsg.ByteMessageBody(self,qq)
-	# ÏûÏ¢Î²
+	# æ¶ˆæ¯å°¾
 	self.end  = bytemsg.ByteMessageEnd(self)
-        # ÏûÏ¢¹¤¾ß
+        # æ¶ˆæ¯å·¥å…·
         self.msgutilcls = util
-        # Ğ­ÒéÃû³Æ
+        # åè®®åç§°
         self.protocolname = 'qq'
-        # µ±Ç°µÄÏûÏ¢Ãû³Æ
+        # å½“å‰çš„æ¶ˆæ¯åç§°
         self.msgname = ''
-        #Ê¹ÓÃqqÓÃ»§ĞÅÏ¢
+        #ä½¿ç”¨qqç”¨æˆ·ä¿¡æ¯
         self.qq=qq
 
     def unpack_qq_logout(self, packet):
+        """Logoutè¯·æ±‚åŒ…ï¼Œè¿™ä¸ªåŒ…æ²¡æœ‰æœåŠ¡å™¨çš„åº”ç­”"""
         pass
 
     def unpack_qq_alive(self, packet):
@@ -78,32 +80,104 @@ class inqqMessage(bytemsg.ByteMessage):
             self.body.fields['msg_id'],\
             self.body.fields['send_ip'],\
             self.body.fields['send_port'],\
-            self.body.fields['type'],\
+            self.body.fields['type']=\
+            struct.unpack('>IIIIHH',packet[0:20])
+        #å¥½å‹æ¶ˆæ¯
+        if self.body.fields['type'] == 9:
+            self.body.fields['type'] = basic.msg_type[0x0009L]
             self.body.fields['send_ver'],\
-            self.body.fields['send_qq1'],\
-            self.body.fields['recv_qq2'],\
-            self.body.fields['msg_md5'],\
-            self.body.fields['type1'],\
-            self.body.fields['session_id'],\
-            self.body.fields['send_time'],\
-            self.body.fields['unkown'],\
-            self.body.fields['send_face'],\
-            self.body.fields['send_font'],\
-            self.body.fields['msg_pass'],\
-            self.body.fields['pass_id'],\
-            self.body.fields['pass_id'],\
-            self.body.fields['msg_type'],\
-            self.body.fields['msg_data'],\
-            self.body.fields['msg_link'],\
-            self.body.fields['msg_end'],\
-            self.body.fields['msg_red'],\
-            self.body.fields['msg_green'],\
-            self.body.fields['msg_blue'],\
-            self.body.fields['unknown'],\
-            self.body.fields['encoding'],\
-            self.body.fields['info'],\
-            self.body.fields['len']=\
-            struct.unpack('>IIIIHHHII16sHHIBBIBBHB'+str(len(packet)-65-14)+'s'+'2sBBBBBH4sB',packet)
+                self.body.fields['send_qq1'],\
+                self.body.fields['recv_qq2'],\
+                self.body.fields['msg_md5'],\
+                self.body.fields['type1'],\
+                self.body.fields['session_id'],\
+                self.body.fields['send_time'],\
+                self.body.fields['unkown'],\
+                self.body.fields['send_face'],\
+                self.body.fields['send_font'],\
+                self.body.fields['msg_pass'],\
+                self.body.fields['pass_id'],\
+                self.body.fields['pass_id'],\
+                self.body.fields['msg_type'],\
+                self.body.fields['msg_data'],\
+                self.body.fields['msg_link'],\
+                self.body.fields['msg_end'],\
+                self.body.fields['msg_red'],\
+                self.body.fields['msg_green'],\
+                self.body.fields['msg_blue'],\
+                self.body.fields['unknown'],\
+                self.body.fields['encoding'],\
+                self.body.fields['info'],\
+                self.body.fields['len']=\
+                struct.unpack('>HII16sHHIBBIBBHB'+str(len(packet)-65-14)+'s'+'2sBBBBBH4sB',packet[20:])
+        #é™Œç”Ÿäººæ¶ˆæ¯
+        elif self.body.fields['type'] == 10:
+            self.body.fields['type'] = basic.msg_type[0x000AL]
+            self.body.fields['send_ver'],\
+                self.body.fields['send_qq1'],\
+                self.body.fields['recv_qq2'],\
+                self.body.fields['msg_md5'],\
+                self.body.fields['type1'],\
+                self.body.fields['session_id'],\
+                self.body.fields['send_time'],\
+                self.body.fields['unkown'],\
+                self.body.fields['send_face'],\
+                self.body.fields['send_font'],\
+                self.body.fields['msg_pass'],\
+                self.body.fields['pass_id'],\
+                self.body.fields['pass_id'],\
+                self.body.fields['msg_type'],\
+                self.body.fields['msg_data'],\
+                self.body.fields['msg_link'],\
+                self.body.fields['msg_end'],\
+                self.body.fields['msg_red'],\
+                self.body.fields['msg_green'],\
+                self.body.fields['msg_blue'],\
+                self.body.fields['unknown'],\
+                self.body.fields['encoding'],\
+                self.body.fields['info'],\
+                self.body.fields['len']=\
+                struct.unpack('>HII16sHHIBBIBBHB'+str(len(packet)-65-14)+'s'+'2sBBBBBH4sB',packet[20:])
+        #æ‰‹æœºçŸ­æ¶ˆæ¯æ™®é€šç”¨æˆ·
+        elif self.body.fields['type'] == 11:
+            self.body.fields['type'] = basic.msg_type[0x000BL]
+        #æ‰‹æœºçŸ­æ¶ˆæ¯ç§»åŠ¨QQç”¨æˆ·
+        elif self.body.fields['type'] == 0x0013L:
+            self.body.fields['type'] = basic.msg_type[0x0013L]
+        #æœªçŸ¥ç±»å‹çš„ç¾¤æ¶ˆæ¯
+        elif self.body.fields['type'] == 0x0020L:
+            self.body.fields['type'] = basic.msg_type[0x0020L]
+        #åŠ å…¥åˆ°ç¾¤
+        elif self.body.fields['type'] == 0x0021L:
+            self.body.fields['type'] = basic.msg_type[0x0021L]
+        #è¢«è¸¢å‡ºç¾¤
+        elif self.body.fields['type'] == 0x0022L:
+            self.body.fields['type'] = basic.msg_type[0x0022L]
+        #è¯·æ±‚åŠ å…¥ç¾¤
+        elif self.body.fields['type'] == 0x0023L:
+            self.body.fields['type'] = basic.msg_type[0x0023L]
+        #åŒæ„åŠ å…¥ç¾¤
+        elif self.body.fields['type'] == 0x0024L:
+            self.body.fields['type'] = basic.msg_type[0x0024L]
+        #æ‹’ç»å¯¹æ–¹åŠ å…¥ç¾¤
+        elif self.body.fields['type'] == 0x0025L :
+            self.body.fields['type'] = basic.msg_type[0x0025L]
+        #åŠ å…¥åˆ°ç¾¤åœ¨åˆ›å»ºæ—¶è¢«åŠ 
+        elif self.body.fields['type'] == 0x0026L :
+            self.body.fields['type'] = basic.msg_type[0x0026L]
+        #ä¸´æ—¶ç¾¤æ¶ˆæ¯
+        elif self.body.fields['type'] == 0x002AL :
+            self.body.fields['type'] = basic.msg_type[0x002AL]
+        #å›ºå®šç¾¤æ¶ˆæ¯
+        elif self.body.fields['type'] == 0x002BL :
+            self.body.fields['type'] = basic.msg_type[0x002BL]
+        #ç³»ç»Ÿæ¶ˆæ¯
+        elif self.body.fields['type'] == 0x0030L :
+            self.body.fields['type'] = basic.msg_type[0x0030L]
+        #åŒä¸€ä¸ªQQå·åœ¨å…¶ä»–åœ°æ–¹ç™»å½•
+        elif self.body.fields['type'] == 0x01L :
+            self.body.fields['type'] = basic.msg_type[0x01L]
+            
 
     def unpack_qq_remove_self(self, packet):
         pass
@@ -115,10 +189,10 @@ class inqqMessage(bytemsg.ByteMessage):
         pass
 
     def unpack_qq_login(self, packet):
-        """login±¨ÎÄ½â°ü"""
+        """loginæŠ¥æ–‡è§£åŒ…"""
         self.body.fields['status']=struct.unpack('B',packet[0])
 	if self.body.fields['status'][0]==0:
-            #·µ»ØµÇÂ½°ü
+            #è¿”å›ç™»é™†åŒ…
             self.body.fields['session'],\
                 self.body.fields['qq_id'],\
                 self.body.fields['user_ip'],\
@@ -140,13 +214,13 @@ class inqqMessage(bytemsg.ByteMessage):
                 self.body.fields['unknown8']=\
                 struct.unpack('>16sIIHIHI26sIHIH2s2s32s12sII8s',packet[1:139])
         if self.body.fields['status'][0]==1:
-            #·µ»ØÖØ¶¨Ïò°ü
+            #è¿”å›é‡å®šå‘åŒ…
             self.body.fields['qq_id'],\
                 self.body.fields['ip'],\
                 self.body.fields['port']=\
                 struct.unpack('>IIH',packet[1:13])
 	if self.body.fields['status'][0]== 5:
-	    #ÃÜÂë´íÎó
+	    #å¯†ç é”™è¯¯
 	    self.body.fields['data']=\
 		struct.unpack(str(len(packet)-1)+'s',packet[1:])
 	    
@@ -229,7 +303,7 @@ class inqqMessage(bytemsg.ByteMessage):
         pass
 
     def unpack_qq_pre_login(self, packet):
-        """pre_login±¨ÎÄ½â°ü"""
+        """pre_loginæŠ¥æ–‡è§£åŒ…"""
         self.body.fields['status'], \
             self.body.fields['pre_len']=\
             struct.unpack('BB',packet[:2])
@@ -244,25 +318,27 @@ class inqqMessage(bytemsg.ByteMessage):
 
             
 class outqqMessage(bytemsg.ByteMessage):
-    """qq ÏûÏ¢»ùÀà"""
+    """qq æ¶ˆæ¯åŸºç±»"""
     def __init__(self,qq):
-        # ÏûÏ¢Í·
+        # æ¶ˆæ¯å¤´
         self.head = bytemsg.outByteMessageHead(self,qq)
-        # ÏûÏ¢Ìå
+        # æ¶ˆæ¯ä½“
         self.body = bytemsg.ByteMessageBody(self,qq)
-	# ÏûÏ¢Î²
+	# æ¶ˆæ¯å°¾
 	self.end  = bytemsg.ByteMessageEnd(self)
-        # ÏûÏ¢¹¤¾ß
+        # æ¶ˆæ¯å·¥å…·
         self.msgutilcls = util
-        # Ğ­ÒéÃû³Æ
+        # åè®®åç§°
         self.protocolname = 'qq'
-        # µ±Ç°µÄÏûÏ¢Ãû³Æ
+        # å½“å‰çš„æ¶ˆæ¯åç§°
         self.msgname = ''
-        #Ê¹ÓÃqqÓÃ»§ĞÅÏ¢
+        #ä½¿ç”¨qqç”¨æˆ·ä¿¡æ¯
         self.qq=qq
 
     def pack_qq_logout(self, fields):
-        pass
+        return struct.pack('>'+str(len(fields['key']))+'s',
+                fields['key']
+                )
 
     def pack_qq_alive(self, fields):
         return struct.pack('>'+str(len(fields['qq']))+'s',
@@ -291,8 +367,9 @@ class outqqMessage(bytemsg.ByteMessage):
         pass
 
     def pack_qq_chang_status(self,fields):
-        return struct.pack(str(len(fields['data']))+'s',
-		fields['data']
+        return struct.pack('>BI',
+		fields['online'],
+                fields['video']           
                 )
 
     def pack_qq_reg_id_1(self, fields):
@@ -348,7 +425,7 @@ class outqqMessage(bytemsg.ByteMessage):
         pass
 
     def pack_qq_login(self, fields):
-        """login±¨ÎÄ´ò°ü"""
+        """loginæŠ¥æ–‡æ‰“åŒ…"""
         return struct.pack('>16s16s36ss16ss'+str(ord(fields['pre_len']))+'ss94s'+str(len(fields['end']))+'s',
                 fields['initkey'],
                 fields['md5'],
@@ -410,7 +487,7 @@ class outqqMessage(bytemsg.ByteMessage):
         pass
 
     def pack_qq_pre_login(self, fields):
-        """pre_login±¨ÎÄ´ò°ü"""
+        """pre_loginæŠ¥æ–‡æ‰“åŒ…"""
         return struct.pack('>B',
                 fields['unknown']
                 )

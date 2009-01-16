@@ -103,29 +103,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_recv(self, message):
-        #将收到的消息的前16位返回给服务器，表示已经收到消息
-        try:
-            print self.qq.friend_list[message.body.fields['send_qq']]['name']+':'+\
-                message.body.fields['msg_data']
-        except KeyError:
-            print str(message.body.fields['send_qq'])+':'+\
-                message.body.fields['msg_data']
-            
-            
-        send_qq = message.body.fields['send_qq']
-        recv_qq = message.body.fields['recv_qq']
-        msg_id = message.body.fields['msg_id']
-        send_ip = message.body.fields['send_ip']
-        #将接受到的流水号发送出去。
-        sequence = message.head.sequence
-        message = qqmsg.outqqMessage(self.qq)
-        message.head.sequence = sequence
-        message.setMsgName('qq_recv')
-        message.body.setField('send_qq',send_qq)
-        message.body.setField('recv_qq',recv_qq)
-        message.body.setField('msg_id',msg_id)
-        message.body.setField('send_ip',send_ip)
-        self.sendDataToQueue(message)
+        self.recv(message)
 
     def on_qq_remove_self(self, message):
         pass
@@ -149,9 +127,8 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
                 self.qq.session=message.body.fields['session']
                 message = qqmsg.outqqMessage(self.qq)
                 message.setMsgName('qq_chang_status')
-                send_data = str(basic.QQ_status['online'])+basic.QQ_video
-                send_data = tea.encrypt(send_data,self.qq.session)
-                message.body.setField('data',send_data)
+                message.body.setField('online',basic.QQ_status['online'])
+                message.body.setField('video',basic.QQ_video)
                 self.sendDataToQueue(message)
 
     def on_qq_get_friend_list(self, message):
