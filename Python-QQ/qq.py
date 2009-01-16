@@ -181,7 +181,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
             for i in self.qq.friend_online.keys():
                 print str(i)+':'+self.qq.friend_list[i]['name']
 
-    def on_qq_cell_photo_2(self, message):
+    def on_qq_cell_phone_2(self, message):
         pass
 
     def on_qq_send_sms(self, message):
@@ -343,7 +343,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         message.body.setField('unknown1',0)
         self.sendDataToQueue(message)
 
-    def cell_photo_2(self):
+    def cell_phone_2(self):
         pass
 
     def send_sms(self):

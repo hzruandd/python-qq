@@ -195,7 +195,7 @@ class inqqMessage(bytemsg.ByteMessage):
             packet=packet[38:]
         self.body.fields['data']=qq_list	    
 
-    def unpack_qq_cell_photo_2(self, packet):
+    def unpack_qq_cell_phone_2(self, packet):
         pass
 
     def unpack_qq_send_sms(self, packet):
@@ -376,7 +376,7 @@ class outqqMessage(bytemsg.ByteMessage):
                 fields['unknown1']
                 )
 
-    def pack_qq_cell_photo_2(self, fields):
+    def pack_qq_cell_phone_2(self, fields):
         pass
 
     def pack_qq_send_sms(self, fields):
