@@ -1,10 +1,10 @@
-# -*- coding: cp936 -*-
+# -*- coding: utf-8 -*-
 
 """
-±¾¶Î³ÌĞòÀ´Ô´ÓÚcompass£¬Äã¿ÉÒÔµ½ÕâÀïÁË½â¸ü¶à£º
+æœ¬æ®µç¨‹åºæ¥æºäºcompassï¼Œä½ å¯ä»¥åˆ°è¿™é‡Œäº†è§£æ›´å¤šï¼š
 http://wiki.woodpecker.org.cn/moin/Compass
-Ô­×÷Õß:HD<mailto:hdcola@gmail.com>
-ĞŞ¸Ä£ºÃ·¾¢ËÉ
+åŸä½œè€…:HD<mailto:hdcola@gmail.com>
+ä¿®æ”¹ï¼šæ¢…åŠ²æ¾
 """
 
 import struct
@@ -13,39 +13,39 @@ import basic
 from binascii import b2a_hex, a2b_hex
 
 class ByteMessage:
-    """¶ş½øÖÆÏûÏ¢»ùÀà"""
+    """äºŒè¿›åˆ¶æ¶ˆæ¯åŸºç±»"""
     
     def __init__(self):
-        """³õÊ¼»¯Ò»¸öÏûÏ¢"""
-        # ÏûÏ¢Í·
+        """åˆå§‹åŒ–ä¸€ä¸ªæ¶ˆæ¯"""
+        # æ¶ˆæ¯å¤´
         # self.head = None
-        # ÏûÏ¢Ìå
+        # æ¶ˆæ¯ä½“
         # self.body = None
-	# ÏûÏ¢Î²
+	# æ¶ˆæ¯å°¾
 	# self.end  = None
-        # ÏûÏ¢¹¤¾ß
+        # æ¶ˆæ¯å·¥å…·
         # self.msgutilcls = None
-        # µ±Ç°µÄÏûÏ¢Ãû³Æ
+        # å½“å‰çš„æ¶ˆæ¯åç§°
         # self.msgname = ''
-        # µ±Ç°Ğ­ÒéµÄÃû³Æ
+        # å½“å‰åè®®çš„åç§°
         # self.protocolname = ''
 
     def loadMessage(self, packet):
-        """´Ó¶ş½øÖÆÁ÷ÖĞ¼ÓÔØ³öÏûÏ¢¶ÔÏó"""
-        # ¼ÜÔØ°üÍ·
+        """ä»äºŒè¿›åˆ¶æµä¸­åŠ è½½å‡ºæ¶ˆæ¯å¯¹è±¡"""
+        # æ¶è½½åŒ…å¤´
         self.head.loadHead(packet[:len(self.head)])
         self.msgname = basic.commandinfo[self.head.id]
-        # ÒÀ¾İÏûÏ¢ID¼ÜÔØ°üÌå
+        # ä¾æ®æ¶ˆæ¯IDæ¶è½½åŒ…ä½“
         self.body.loadBody(self.msgname, packet[len(self.head):-1])
 	self.end.loadEnd(packet[-1:])
 
     def setMsgName(self, msgname):
-        """ÉèÖÃÏûÏ¢Ãû"""
+        """è®¾ç½®æ¶ˆæ¯å"""
         self.head.setId(basic.nametoid[msgname])
         self.msgname = msgname
 
     def packed(self):
-        """´ò°üÏûÏ¢Îª¶ş½øÖÆÁ÷PDU"""
+        """æ‰“åŒ…æ¶ˆæ¯ä¸ºäºŒè¿›åˆ¶æµPDU"""
         body = self.body.packed()
         if (body == None):
             return self.head.packed()
@@ -54,131 +54,131 @@ class ByteMessage:
             return self.head.packed() + body + self.end.packed()
 
     def __str__(self):
-        """×Ö·û´®»¯"""
+        """å­—ç¬¦ä¸²åŒ–"""
         return str(self.head) + '\n' + str(self.body)+ '\n' + str(self.end)
 
 class inByteMessageHead:
-    """¶ş½øÖÆÏûÏ¢µÄÏûÏ¢Í·³éÏñÀà"""
+    """äºŒè¿›åˆ¶æ¶ˆæ¯çš„æ¶ˆæ¯å¤´æŠ½åƒç±»"""
     def __init__(self, parent):
-        # Í·
+        # å¤´
         self.packhead = basic.QQ_02_head
-	# °æ±¾
+	# ç‰ˆæœ¬
 	self.ver = basic.QQ_ver
-        # ÃüÁîID
+        # å‘½ä»¤ID
         self.id = 0
-        # ĞòÁĞºÅ
+        # åºåˆ—å·
         self.sequence = 0
-        # Ëûµù
+        # ä»–çˆ¹
         self.parent = parent
 
     def __len__(self):
-        """°üÍ·¶¨³¤7"""
+        """åŒ…å¤´å®šé•¿7"""
         return basic.QQ_02_in_head_len
 
     def setId(self,id):
-        """ÉèÖÃÃüÁîID"""
+        """è®¾ç½®å‘½ä»¤ID"""
         self.id = id
 
     def setSequence(self,sequence):
-        """ÉèÖÃ·¢ËÍĞòÁĞ"""
+        """è®¾ç½®å‘é€åºåˆ—"""
         self.sequence = sequence
 
     def setLength(self, length):
-        """°üµÄÕû³¤"""
+        """åŒ…çš„æ•´é•¿"""
         self.length = length
 
     def loadHead(self, header):
-        """×ª»»Ò»¸öPDU (protocol data unit)µ½Ò»¸öÏûÏ¢Í·
-        ÏûÏ¢Í·µÄ¸ñÊ½Îª°üÍ·(1×Ö½Ú)¡¢°æ±¾£¨2×Ö½Ú£©¡¢ÃüÁîID£¨2×Ö½Ú£©¡¢Á÷Ë®ºÅ£¨2×Ö½Ú£©£¬¹²7×Ö½Ú³¤¶È
+        """è½¬æ¢ä¸€ä¸ªPDU (protocol data unit)åˆ°ä¸€ä¸ªæ¶ˆæ¯å¤´
+        æ¶ˆæ¯å¤´çš„æ ¼å¼ä¸ºåŒ…å¤´(1å­—èŠ‚)ã€ç‰ˆæœ¬ï¼ˆ2å­—èŠ‚ï¼‰ã€å‘½ä»¤IDï¼ˆ2å­—èŠ‚ï¼‰ã€æµæ°´å·ï¼ˆ2å­—èŠ‚ï¼‰ï¼Œå…±7å­—èŠ‚é•¿åº¦
         """
         self.packhead,self.ver,self.id,self.sequence = struct.unpack('>BHHH', header)
     
     def packed(self):
-        """×ª»»Ò»¸öÏûÏ¢Í·Îª¶ş½øÖÆÁ÷
-        ÏûÏ¢Í·µÄ¸ñÊ½Îª°üÍ·(1×Ö½Ú)¡¢°æ±¾£¨2×Ö½Ú£©¡¢ÃüÁîID£¨2×Ö½Ú£©¡¢Á÷Ë®ºÅ£¨2×Ö½Ú£©£¬¹²7×Ö½Ú³¤¶È
+        """è½¬æ¢ä¸€ä¸ªæ¶ˆæ¯å¤´ä¸ºäºŒè¿›åˆ¶æµ
+        æ¶ˆæ¯å¤´çš„æ ¼å¼ä¸ºåŒ…å¤´(1å­—èŠ‚)ã€ç‰ˆæœ¬ï¼ˆ2å­—èŠ‚ï¼‰ã€å‘½ä»¤IDï¼ˆ2å­—èŠ‚ï¼‰ã€æµæ°´å·ï¼ˆ2å­—èŠ‚ï¼‰ï¼Œå…±7å­—èŠ‚é•¿åº¦
         """
         return struct.pack('>BHHH', self.packhead, self.ver,self.id, self.sequence)
     def __str__(self):
-        """×Ö·û´®»¯"""
+        """å­—ç¬¦ä¸²åŒ–"""
         plist = []
-        plist.append("°üÍ·:%s" % self.packhead)
-	plist.append("°æ±¾:%s" % self.ver)
-        plist.append("ÃüÁîID£º%s" % self.id)
-        plist.append("ÏûÏ¢ĞòÁĞºÅ£º%s" % self.sequence)
+        plist.append("åŒ…å¤´:%s" % self.packhead)
+	plist.append("ç‰ˆæœ¬:%s" % self.ver)
+        plist.append("å‘½ä»¤IDï¼š%s" % self.id)
+        plist.append("æ¶ˆæ¯åºåˆ—å·ï¼š%s" % self.sequence)
         return reduce(lambda x,y: x + "\n" + y, plist)
 
 class outByteMessageHead:
-    """¶ş½øÖÆÏûÏ¢µÄÏûÏ¢Í·³éÏñÀà"""
+    """äºŒè¿›åˆ¶æ¶ˆæ¯çš„æ¶ˆæ¯å¤´æŠ½åƒç±»"""
     def __init__(self, parent, qq):
-        # Í·
+        # å¤´
         self.packhead = basic.QQ_02_head
-	# °æ±¾
+	# ç‰ˆæœ¬
 	self.ver = basic.QQ_ver
-        # ÃüÁîID
+        # å‘½ä»¤ID
         self.id = 0
-        # ĞòÁĞºÅ
+        # åºåˆ—å·
         self.sequence = 0
-        # QQºÅÂë
+        # QQå·ç 
         self.qq_id = 0
-        # Ëûµù
+        # ä»–çˆ¹
         self.parent = parent
-        #¼Ì³ĞQQÓÃ»§ĞÅÏ¢
+        #ç»§æ‰¿QQç”¨æˆ·ä¿¡æ¯
         self.qq=qq
 
     def __len__(self):
-        """°üÍ·¶¨³¤7"""
+        """åŒ…å¤´å®šé•¿7"""
         return basic.QQ_02_out_head_len
 
     def setId(self,id):
-        """ÉèÖÃÃüÁîID"""
+        """è®¾ç½®å‘½ä»¤ID"""
         self.id = id
 
     def setSequence(self,sequence):
-        """ÉèÖÃ·¢ËÍĞòÁĞ"""
+        """è®¾ç½®å‘é€åºåˆ—"""
         self.sequence = sequence
 
     def setLength(self, length):
-        """°üµÄÕû³¤"""
+        """åŒ…çš„æ•´é•¿"""
         self.length = length
 
     def loadHead(self, header):
-        """×ª»»Ò»¸öPDU (protocol data unit)µ½Ò»¸öÏûÏ¢Í·
-        ÏûÏ¢Í·µÄ¸ñÊ½Îª°üÍ·(1×Ö½Ú)¡¢°æ±¾£¨2×Ö½Ú£©¡¢ÃüÁîID£¨2×Ö½Ú£©¡¢Á÷Ë®ºÅ£¨2×Ö½Ú£©¡¢ÓÃ»§QQºÅÂë£¬¹²11×Ö½Ú³¤¶È
+        """è½¬æ¢ä¸€ä¸ªPDU (protocol data unit)åˆ°ä¸€ä¸ªæ¶ˆæ¯å¤´
+        æ¶ˆæ¯å¤´çš„æ ¼å¼ä¸ºåŒ…å¤´(1å­—èŠ‚)ã€ç‰ˆæœ¬ï¼ˆ2å­—èŠ‚ï¼‰ã€å‘½ä»¤IDï¼ˆ2å­—èŠ‚ï¼‰ã€æµæ°´å·ï¼ˆ2å­—èŠ‚ï¼‰ã€ç”¨æˆ·QQå·ç ï¼Œå…±11å­—èŠ‚é•¿åº¦
         """
         self.packhead,self.ver,self.id,self.sequence,self.qq_id = struct.unpack('>BHHHI', header)
     
     def packed(self):
-        """×ª»»Ò»¸öÏûÏ¢Í·Îª¶ş½øÖÆÁ÷
-        ÏûÏ¢Í·µÄ¸ñÊ½Îª°üÍ·(1×Ö½Ú)¡¢°æ±¾£¨2×Ö½Ú£©¡¢ÃüÁîID£¨2×Ö½Ú£©¡¢Á÷Ë®ºÅ£¨2×Ö½Ú£©¡¢ÓÃ»§QQºÅÂë£¬¹²11×Ö½Ú³¤¶È
+        """è½¬æ¢ä¸€ä¸ªæ¶ˆæ¯å¤´ä¸ºäºŒè¿›åˆ¶æµ
+        æ¶ˆæ¯å¤´çš„æ ¼å¼ä¸ºåŒ…å¤´(1å­—èŠ‚)ã€ç‰ˆæœ¬ï¼ˆ2å­—èŠ‚ï¼‰ã€å‘½ä»¤IDï¼ˆ2å­—èŠ‚ï¼‰ã€æµæ°´å·ï¼ˆ2å­—èŠ‚ï¼‰ã€ç”¨æˆ·QQå·ç ï¼Œå…±11å­—èŠ‚é•¿åº¦
         """
         return struct.pack('>BHHHI', self.packhead, self.ver,self.id, self.sequence, self.qq.id)
     
     def __str__(self):
-        """×Ö·û´®»¯"""
+        """å­—ç¬¦ä¸²åŒ–"""
         plist = []
-        plist.append("°üÍ·:%s" % self.packhead)
-	plist.append("°æ±¾:%s" % self.ver)
-        plist.append("ÃüÁîID£º%s" % self.id)
-        plist.append("ÏûÏ¢ĞòÁĞºÅ£º%s" % self.sequence)
-        plist.append("ÓÃ»§QQºÅ:%s" % self.qq_id)
+        plist.append("åŒ…å¤´:%s" % self.packhead)
+	plist.append("ç‰ˆæœ¬:%s" % self.ver)
+        plist.append("å‘½ä»¤IDï¼š%s" % self.id)
+        plist.append("æ¶ˆæ¯åºåˆ—å·ï¼š%s" % self.sequence)
+        plist.append("ç”¨æˆ·QQå·:%s" % self.qq_id)
         return reduce(lambda x,y: x + "\n" + y, plist)
 
 class ByteMessageBody:
-    """¶ş½øÖÆ±¨ÎÄµÄÏûÏ¢Ìå³éÏñÀà"""
+    """äºŒè¿›åˆ¶æŠ¥æ–‡çš„æ¶ˆæ¯ä½“æŠ½åƒç±»"""
     def __init__(self, parent,qq):
-        # ÏûÏ¢µÄÄÚÈİ
+        # æ¶ˆæ¯çš„å†…å®¹
         self.fields = {}
         self.setField = self.fields.__setitem__
-        # Ëûµù
+        # ä»–çˆ¹
         self.parent = parent
-	#Ê¹ÓÃqqÓÃ»§ĞÅÏ¢
+	#ä½¿ç”¨qqç”¨æˆ·ä¿¡æ¯
 	self.qq=qq
 
     def loadBody(self, msgname, packet):
-        """×ª»»Ò»¸ö¶ş½øÖÆÁ÷ÎªÏûÏ¢Ìå"""
-        # ÕÒµ½½â°üµÄ·½·¨
+        """è½¬æ¢ä¸€ä¸ªäºŒè¿›åˆ¶æµä¸ºæ¶ˆæ¯ä½“"""
+        # æ‰¾åˆ°è§£åŒ…çš„æ–¹æ³•
         method = getattr(self.parent , "unpack_%s" %(msgname), None)
-        #³ıÁËÉêÇëÁîÅÆ°üÍâ£¬ÆäËûËùÓĞ°ü½âÃÜ
+        #é™¤äº†ç”³è¯·ä»¤ç‰ŒåŒ…å¤–ï¼Œå…¶ä»–æ‰€æœ‰åŒ…è§£å¯†
         if msgname!='qq_pre_login':
             msg=tea.decrypt(packet,self.qq.session)
             if msg == None:
@@ -190,8 +190,8 @@ class ByteMessageBody:
         self.conversionString()
     
     def packed(self):
-        """×ª»»ÏûÏ¢ÌåÎª¶ş½øÖÆÁ÷"""
-        # ÕÒµ½´ò°ü·½·¨
+        """è½¬æ¢æ¶ˆæ¯ä½“ä¸ºäºŒè¿›åˆ¶æµ"""
+        # æ‰¾åˆ°æ‰“åŒ…æ–¹æ³•
         method = getattr(self.parent , "pack_%s" %(self.parent.msgname), None)
         send_msg = method(self.fields)
         if self.parent.msgname == 'qq_pre_login':
@@ -201,7 +201,7 @@ class ByteMessageBody:
         return tea.encrypt(send_msg,self.qq.session)
 
     def conversionString(self):
-        """È¥³ıfiledsÖĞ×Ö·û´®ÖĞµÄ\x00"""
+        """å»é™¤filedsä¸­å­—ç¬¦ä¸²ä¸­çš„\x00"""
         for field in self.fields.keys():
             if ( isinstance(self.fields[field],str) ):
                 index = self.fields[field].find('\0')
@@ -209,17 +209,17 @@ class ByteMessageBody:
                     self.fields[field] = self.fields[field][:index]
 
     def __str__(self):
-        """×Ö·û´®»¯"""
+        """å­—ç¬¦ä¸²åŒ–"""
         if len(self.fields) > 0:
             plist = []
             for field in self.fields.keys():
-                plist.append(str(field) + "£º"  + str(self.fields[field]))
+                plist.append(str(field) + "ï¼š"  + str(self.fields[field]))
             return reduce(lambda x,y: x + "\n" + y, plist)
         else:
             return ""
 
     def __len__(self):
-        """ÏûÏ¢Ìå³¤¶È"""
+        """æ¶ˆæ¯ä½“é•¿åº¦"""
         if len(self.fields) > 0:
             fields_len = 0
             for field in self.fields.keys():
@@ -228,13 +228,13 @@ class ByteMessageBody:
         
 
 class ByteMessageEnd:
-    """¶ş½øÖÆ±¨ÎÄµÄÏûÏ¢Î²³éÏñÀà"""
+    """äºŒè¿›åˆ¶æŠ¥æ–‡çš„æ¶ˆæ¯å°¾æŠ½åƒç±»"""
     def __init__(self, parent):
-        # °üÎ²
+        # åŒ…å°¾
         self.end = 3
     def packed(self):
-        """×ª»»Ò»¸öÏûÏ¢Î²Îª¶ş½øÖÆÁ÷"""
+        """è½¬æ¢ä¸€ä¸ªæ¶ˆæ¯å°¾ä¸ºäºŒè¿›åˆ¶æµ"""
         return struct.pack('>B',self.end)
     def loadEnd(self,end):
-	"""×ª»»Ò»¸öÏûÏ¢Î²"""
+	"""è½¬æ¢ä¸€ä¸ªæ¶ˆæ¯å°¾"""
         self.end = struct.unpack('>B', end)

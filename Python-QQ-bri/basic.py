@@ -42,7 +42,8 @@ commandinfo = {
     0x005cL : 'qq_level',                 # 好友等级信息
     0x005fL : 'qq_cluster_data',          # 群数据操作
     0x0061L : 'qq_advanced_search',       # 高级查找
-    0x0062L : 'qq_pre_login',             # 申请登录码 
+    0x0062L : 'qq_pre_login',             # 申请登录码
+    0x0066L : 'qq_tmp_op',                # 临时会话操作
     0x0080L : 'qq_msg_sys',               # 接受系统消息
     0x0081L : 'qq_friend_chang_status'    # 好友改变状态 
     }
@@ -52,6 +53,7 @@ msg_type = {
     10 : '陌生人消息',
     11 : '手机短消息普通用户',
     0x0013L : '手机短消息移动QQ用户',
+    0x001FL : '临时会话',
     0x0020L : '未知类型的群消息',
     0x0021L : '加入到群',
     0x0022L : '被踢出群',
@@ -118,7 +120,7 @@ QQ_friend_list_sorted = 1
 QQ_replay={'ok':0x00, 'pre_ok':0x00, 'redirect':0x01, 'pwd_error':0x05, 'change_status':0x30, 'add_friend_auth':0x30}
 
 #群命令
-GROUP_cmd={'send':0x0A}
+GROUP_cmd={'send':0x0A, 'tmp':0x01}
 
 
 

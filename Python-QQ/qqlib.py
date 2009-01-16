@@ -134,6 +134,11 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         else:
             if message.body.fields['status'][0]==5:
                 print message.body.fields['data'][0]
+            elif message.body.fields['status'][0]==6:
+                self.printl('您的号码[' + str(self.qq.id) + ']可能存在异常情况，已受到限制登录保护，需激活后才能正常登录。\
+                            激活地址是：\
+                            电信或网通用户 ：im.qq.com/jh或activate.qq.com\
+                            教育网用户： activateedu.qq.com') 
             else:
                 self.printl('登陆成功')
                 self.qq.login = 1
@@ -229,7 +234,10 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         message.body.setField('login_end',a2b_hex(basic.QQ_login_end))
         message.body.setField('end',(416-len(message.body))*chr(00))
         self.sendDataToQueue(message)
-
+        
+    def on_qq_tmp_op(self,message):
+        pass
+    
     def on_qq_msg_sys(self, message):
         pass
 

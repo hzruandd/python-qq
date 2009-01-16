@@ -211,7 +211,7 @@ def decrypt(v, k):
         preCrypt = v[i:i+8]
         r += x
     if r[-7:] != '\0'*7: return None
-    
+    
     return r[pos+1:-7]
 
 def decipher(v, k):

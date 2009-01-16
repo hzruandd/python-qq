@@ -52,9 +52,11 @@ class inqqMessage(bytemsg.ByteMessage):
         pass
 
     def unpack_qq_add_friend_auth(self, packet):
+        print 'add_friend'
         pass
 
     def unpack_qq_del_friend(self, packet):
+        print 'del_friend'
         pass
 
     def unpack_qq_buddy_auth(self, packet):
@@ -144,6 +146,26 @@ class inqqMessage(bytemsg.ByteMessage):
         #手机短消息移动QQ用户
         elif self.body.fields['type'] == 0x0013L:
             self.body.fields['type'] = basic.msg_type[0x0013L]
+        #临时会话
+        elif self.body.fields['type'] == 0x001FL:
+            self.body.fields['type'] = basic.msg_type[0x001FL]
+            self.body.fields['send_qq1'],\
+                self.body.fields['unknown'],\
+                self.body.fields['name_len']=\
+                struct.unpack('>IIB',packet[20:29])
+            tmp=29+self.body.fields['name_len']
+            self.body.fields['name']=struct.unpack('>'+str(self.body.fields['name_len'])+'s',packet[29:tmp])
+            self.body.fields['site_len']=struct.unpack('>B',packet[tmp:tmp+1])
+            tmp += 1
+            self.body.fields['site']=struct.unpack('>'+str(self.body.fields['site_len'][0])+'s',packet[tmp:tmp+self.body.fields['site_len'][0]])
+            tmp += self.body.fields['site_len'][0]
+            self.body.fields['unknown1'],\
+                self.body.fields['send_time'],\
+                self.body.fields['len']=\
+                struct.unpack('>BIH',packet[tmp:tmp+7])
+            tmp += 7
+            self.body.fields['msg']=struct.unpack('>'+str(self.body.fields['len']-14)+'s',packet[tmp:tmp+self.body.fields['len']-14])
+            
         #未知类型的群消息
         elif self.body.fields['type'] == 0x0020L:
             self.body.fields['type'] = basic.msg_type[0x0020L]
@@ -293,7 +315,13 @@ class inqqMessage(bytemsg.ByteMessage):
         pass
 
     def unpack_qq_group_cmd(self, packet):
-        pass
+        self.body.fields['type']=\
+            struct.unpack('>B',packet[:1])
+        #发送群消息的返回包
+        if self.body.fields['type'][0]==basic.GROUP_cmd['send']:
+            self.body.fields['status'],\
+                self.body.fields['id']=\
+                struct.unpack('>BI',packet[1:])
 
     def unpack_qq_test(self, packet):
         pass
@@ -327,7 +355,11 @@ class inqqMessage(bytemsg.ByteMessage):
         self.body.fields['pre']=\
 	    struct.unpack(str(self.body.fields['pre_len'])+'s',packet[2:])
 
+    def unpack_qq_tmp_op(self, fields):
+        pass
+
     def unpack_qq_msg_sys(self, packet):
+        """msg_sys报文解包"""
         pass
 
     def unpack_qq_friend_chang_status(self, packet):
@@ -538,7 +570,31 @@ class outqqMessage(bytemsg.ByteMessage):
         return struct.pack('>B',
                 fields['unknown']
                 )
-
+    def pack_qq_tmp_op(self, fields):
+        """临时会话报文打包"""
+        return struct.pack('>BIIB'+str(fields['name_len'])+'sB'+str(fields['site_len'])+'sBIH'+str(len(fields['msg']))+'s2sBBBBBH4sB',
+                fields['cmd'],
+                fields['recv_qq'],
+                fields['unknown'],
+                fields['name_len'],
+                fields['name'],
+                fields['site_len'],
+                fields['site'],
+                fields['unknown1'],
+                fields['unknown2'],
+                fields['len'],
+                fields['msg'],
+                fields['msg_link'],
+                fields['msg_end'],
+                fields['msg_red'],
+                fields['msg_green'],
+                fields['msg_blue'],
+                fields['unknown'],
+                fields['encoding'],
+                fields['info'],
+                fields['end_len']
+                )
+    
     def pack_qq_msg_sys(self, fields):
         pass
 
