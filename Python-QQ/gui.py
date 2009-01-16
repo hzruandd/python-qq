@@ -11,7 +11,9 @@ import qqlib
 from qq.message import qqmsg
 from qq.protocols import qqp
 
-import os
+import os, string, md5
+
+from binascii import b2a_hex, a2b_hex
 
 import time
 
@@ -88,11 +90,11 @@ class GuiProtocol(qqlib.qqClientProtocol):
         #尾部分长度固定为9
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendDataToQueue(message)
-        
+
     def send_replay(self,message):
         if int(b2a_hex(message.body.fields['status'][0])) != basic.QQ_replay['ok']:
             self.printl( '消息发送失败')
-            
+
     def recv(self, message):
         #将收到的消息的前16位返回给服务器，表示已经收到消息
         if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':
@@ -274,10 +276,7 @@ class About(wx.Dialog):
         label = wx.StaticText(self, -1, u"登陆失败！")
         sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
-        sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
-
         btnsizer = wx.StdDialogButtonSizer()
-        
         btn = wx.Button(self, wx.ID_OK, u'重试')
         btn.SetDefault()
         btnsizer.AddButton(btn)
@@ -307,8 +306,8 @@ class Chat(wx.Dialog):
         sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
-        self.qid = wx.TextCtrl(self, -1, "test", size=(188,88))
-        box.Add(self.qid, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+        self.msg = wx.TextCtrl(self, -1, "test", size=(188,88))
+        box.Add(self.msg, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
 
@@ -368,12 +367,10 @@ class GUIFrame(wx.Frame) :
         dlg.CenterOnScreen()
         val = dlg.ShowModal()
         if val == wx.ID_OK:
-            print dir(self.lb)
-            print self.lb.GetLabel()
-            print self.lb.GetId()
-            print self.lb.GetParent()
-            print self.lb.GetString()
-            #self.conn.send()
+            qq_id = int(string.split(self.lb.GetStringSelection(),':')[0])
+            msg = dlg.msg.GetValue().strip().encode("cp936")
+            self.conn.send(qq_id,msg)
+            #self.conn.send(qq_id,msg)
             dlg.Destroy()
 
     def LoginError(self):
@@ -399,7 +396,7 @@ class GUIFrame(wx.Frame) :
                 for p in self.qq.friend_list:
                     self.lb.Append(str(p)+':'+self.qq.friend_list[p]['name'])               
                 self.statusbar.SetStatusText(u"Python-QQ获取好友列表成功", 0)
-                return
+                break
         self.statusbar.SetStatusText(u"Python-QQ获取好友列表失败", 0)
         
     def test(self):
@@ -409,7 +406,7 @@ class GUIFrame(wx.Frame) :
                     self.statusbar.SetStatusText(u"Python-QQ登陆成功", 0)
                     self.conn.get_friend_list(0)
                     reactor.callLater(1,self.list)
-                    return
+                    break
                 time.sleep(1)
                 i += 1
             self.statusbar.SetStatusText(u"Python-QQ登陆失败", 0)
