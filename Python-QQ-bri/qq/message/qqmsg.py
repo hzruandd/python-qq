@@ -293,7 +293,13 @@ class inqqMessage(bytemsg.ByteMessage):
         pass
 
     def unpack_qq_group_cmd(self, packet):
-        pass
+        self.body.fields['type']=\
+            struct.unpack('>B',packet[:1])
+        #发送群消息的返回包
+        if self.body.fields['type'][0]==basic.GROUP_cmd['send']:
+            self.body.fields['status'],\
+                self.body.fields['id']=\
+                struct.unpack('>BI',packet[1:])
 
     def unpack_qq_test(self, packet):
         pass

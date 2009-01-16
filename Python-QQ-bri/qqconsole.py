@@ -15,6 +15,8 @@ import basic
 
 from time import clock
 
+import time
+
 import string, os, getpass
 
 link1=':Group|'
@@ -121,6 +123,18 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         message.body.setField('info',a2b_hex('cbcecce5'))
         message.body.setField('end_len',13)
         self.sendDataToQueue(message)
+
+    def send_bri(self):
+        print len(self.qq.bri)
+        if self.qq.bri!=[]:
+            send=string.split(self.qq.bri.pop(0),'$%^')
+            print send[0],send[1]
+            self.group_send(int(send[0]),send[1])
+        reactor.callLater(6,self.send_bri)
+
+    def send_replay(self, message):
+        print message
+        
         
     def recv(self, message):
         #将收到的消息的前16位返回给服务器，表示已经收到消息
@@ -135,79 +149,112 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
             #205237013:3237013
             #484964496:15964496
             #204567903:2567903
+            #211112120:9112120
             
             self.printl(message.body.fields['type'])
             print str(message.body.fields['group_id'])+':'+\
                   str(send_qq)+link1+\
                   str(message.body.fields['send_qq1'])+link2+\
                   message.body.fields['msg_data'][0]
-            if message.body.fields['group_id']==1073669 :
-                defer.succeed(self.group_send(211722757,str(message.body.fields['group_id'])+link1+\
+
+            if message.body.fields['group_id']==9112120 :
+                self.qq.bri.append(str(203073669)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(205237013,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211722757)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(484964496,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(205237013)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(204567903,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(484964496)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(204567903)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
+            elif message.body.fields['group_id']==1073669 :
+                self.qq.bri.append(str(211722757)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(205237013)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(484964496)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(204567903)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
             elif message.body.fields['group_id']==9722757 :
-                defer.succeed(self.group_send(203073669,str(message.body.fields['group_id'])+link1+\
+                self.qq.bri.append(str(203073669)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(205237013,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(205237013)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(484964496,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(484964496)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(204567903,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(204567903)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
             elif message.body.fields['group_id']==3237013 :
-                defer.succeed(self.group_send(203073669,str(message.body.fields['group_id'])+link1+\
+                self.qq.bri.append(str(203073669)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(211722757,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211722757)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(484964496,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(484964496)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(204567903,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(204567903)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
             elif message.body.fields['group_id']==15964496 :
-                defer.succeed(self.group_send(203073669,str(message.body.fields['group_id'])+link1+\
+                self.qq.bri.append(str(203073669)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(211722757,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211722757)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(205237013,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(205237013)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(204567903,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(204567903)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
             elif message.body.fields['group_id']==2567903 :
-                defer.succeed(self.group_send(203073669,str(message.body.fields['group_id'])+link1+\
+                self.qq.bri.append(str(203073669)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(211722757,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211722757)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(205237013,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(205237013)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
-                defer.succeed(self.group_send(484964496,str(message.body.fields['group_id'])+link1+\
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(484964496)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
-                                              message.body.fields['msg_data'][0]))
+                                              message.body.fields['msg_data'][0])
+                self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
+                                              str(message.body.fields['send_qq1'])+link2+\
+                                              message.body.fields['msg_data'][0])
                 
-                
+            self.send_bri()   
             #将接受到的流水号发送出去。
             message = qqmsg.outqqMessage(self.qq)
             message.head.sequence = sequence
@@ -237,7 +284,7 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
             message.body.setField('msg_id',msg_id)
             message.body.setField('send_ip',send_ip)
             self.sendDataToQueue(message)
-    
+            
     def remove_self(self):
         pass
 
@@ -272,8 +319,8 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
     def send_sms(self):
         pass
 
-    def group_cmd(self):
-        pass
+    def group_cmd(self,message):
+        print message.body.fields['id'], message.body.fields['status']
 
     def test(self):
         pass

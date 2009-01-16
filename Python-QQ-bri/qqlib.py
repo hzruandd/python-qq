@@ -36,6 +36,8 @@ class qq:
         self.login=0
         self.friend_list={}
         self.friend_online={}
+        #建立个转发群消息的列表队列
+        self.bri=[]
         #服务器，这里是个根服务器，将会根据重定向包来决定真正登陆的服务器的IP地址
         self.server=("61.144.238.145",8000)
         self.log=log
@@ -49,7 +51,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
     """建立一个qq客户机的协议处理"""
     def __init__(self,qq):
         # 滑动窗口的大小
-        self.WINMAX = 1024
+        self.WINMAX = 100
         # 等待发送的报文队列
         self.sendQueue = Queue.Queue(self.WINMAX)
         # 已经发出的报文序列ID
@@ -179,7 +181,7 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_group_cmd(self, message):
-        pass
+        self.group_cmd(message)
 
     def on_qq_test(self, message):
         pass
