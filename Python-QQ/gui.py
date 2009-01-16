@@ -1,17 +1,26 @@
 # -*- coding: utf-8 -*-
 """作者:shhgs.efhilt@gmail.com"""
 
-import qqlib
+import  wx
+#import ColorPanel
+import images
 
+from twisted.internet import wxreactor
+wxreactor.install()
+from twisted.internet import reactor, defer, threads
+
+import qqlib
 from qq.message import qqmsg
 from qq.protocols import qqp
 
-import  wx
-from twisted.internet import wxreactor
-wxreactor.install()
-from twisted.internet import reactor
+import os
 
 import time
+
+colourList = [ "Aquamarine", "Black", "Blue", "Blue Violet", "Brown", "Cadet Blue",
+               "Coral", "Cornflower Blue", "Cyan", "Dark Grey", "Dark Green",
+               "Dark Olive Green",
+               ]
 
 class GuiProtocol(qqlib.qqClientProtocol):
     def logout(self):
@@ -85,8 +94,30 @@ class GuiProtocol(qqlib.qqClientProtocol):
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendDataToQueue(message)
 
-    def recv(self):
-        pass
+    def recv(self, message):
+        #将收到的消息的前16位返回给服务器，表示已经收到消息
+        if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':
+            self.printl(message.body.fields['type'])
+        try:
+            print self.qq.friend_list[message.body.fields['send_qq']]['name']+':'+\
+                message.body.fields['msg_data']
+        except KeyError:
+            print str(message.body.fields['send_qq'])+':'+\
+                message.body.fields['msg_data']
+        send_qq = message.body.fields['send_qq']
+        recv_qq = message.body.fields['recv_qq']
+        msg_id = message.body.fields['msg_id']
+        send_ip = message.body.fields['send_ip']
+        #将接受到的流水号发送出去。
+        sequence = message.head.sequence
+        message = qqmsg.outqqMessage(self.qq)
+        message.head.sequence = sequence
+        message.setMsgName('qq_recv')
+        message.body.setField('send_qq',send_qq)
+        message.body.setField('recv_qq',recv_qq)
+        message.body.setField('msg_id',msg_id)
+        message.body.setField('send_ip',send_ip)
+        self.sendDataToQueue(message)
     
     def remove_self(self):
         pass
@@ -171,6 +202,10 @@ class GuiProtocol(qqlib.qqClientProtocol):
         """连接成功后开始发送报文"""
         pass
 
+    def printl(self,str):#转换编码
+        if os.name == 'nt':
+            print str.decode('utf-8').encode("cp936")
+
 class LoginDialog(wx.Dialog) :
     def __init__(
             self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition,   \
@@ -224,8 +259,37 @@ class LoginDialog(wx.Dialog) :
 
         self.SetSizer(sizer)
         sizer.Fit(self)
-    
 
+class About(wx.Dialog):
+    def __init__(self, parent, ID, title, size=wx.DefaultSize, pos=wx.DefaultPosition,   \
+            style=wx.DEFAULT_DIALOG_STYLE                                           \
+            ):
+        pre = wx.PreDialog()
+        pre.SetExtraStyle(wx.DIALOG_EX_CONTEXTHELP)
+        pre.Create(parent, ID, title, pos, size, style)
+
+        self.PostCreate(pre)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+
+        label = wx.StaticText(self, -1, u"登陆失败！")
+        sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+        btnsizer = wx.StdDialogButtonSizer()
+        
+        btn = wx.Button(self, wx.ID_OK, u'重试')
+        btn.SetDefault()
+        btnsizer.AddButton(btn)
+
+        btn = wx.Button(self, wx.ID_CANCEL, u'关闭')
+        btnsizer.AddButton(btn)
+        btnsizer.Realize()
+
+        sizer.Add(btnsizer, 0, wx.ALIGN_CENTER_VERTICAL|wx.ALL, 5)
+
+        self.SetSizer(sizer)
+        sizer.Fit(self)
+        
 class GUIFrame(wx.Frame) :
     def __init__(self, parent, ID, title, pos=wx.DefaultPosition,
                     size = wx.DefaultSize, style = wx.DEFAULT_FRAME_STYLE|wx.FULL_REPAINT_ON_RESIZE):
@@ -233,7 +297,7 @@ class GUIFrame(wx.Frame) :
         self.Bind(wx.EVT_CLOSE, self.OnCloseWindow)
         
         self.qqConnection = None                        ##  在Login方法里面创建
-        self.log          = qqlib.initLogging()     ##  ...
+        self.log          = qqlib.initLogging()         ##  ...
 
         ##-------------------------------------------
         ##  Install Menu
@@ -242,17 +306,45 @@ class GUIFrame(wx.Frame) :
         menuAccount = wx.Menu()
 
         menuAccount.Append(101, u"登录", "")
+        menuAccount.Append(102, u"退出程序", "")
         self.Bind(wx.EVT_MENU, self.Login, id = 101)
+        self.Bind(wx.EVT_MENU, self.OnCloseWindow, id = 102)
 
-        menuBar.Append(menuAccount, u"帐户管理")
+        menuBar.Append(menuAccount, u"菜单")
 
         self.SetMenuBar(menuBar)
+        self.statusbar = self.CreateStatusBar(1, wx.ST_SIZEGRIP)
+        self.statusbar.SetStatusText(u"Python-QQ未登陆", 0)
+        
         ##-------------------------------------------
 
     ##-------------------------------------------
     ##  Menu Event
+    def LoginError(self):
+        dlg = About(self, -1, u"警告", size=(350, 200),
+                         #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
+                         style = wx.DEFAULT_DIALOG_STYLE
+                         )
+        dlg.CenterOnScreen()
+        val = dlg.ShowModal()
+        if val == wx.ID_OK:
+            self.conn.login()
+            reactor.callLater(1,self.test)
+            dlg.Destroy()
+        
+    def test(self):
+            i = 0
+            while i < 2:
+                if self.qq.login == 1:
+                    self.statusbar.SetStatusText(u"Python-QQ登陆成功", 0)
+                    return
+                time.sleep(1)
+                i += 1
+            self.statusbar.SetStatusText(u"Python-QQ登陆失败", 0)
+            self.LoginError()
+           
     def Login(self, event) :
-        dlg = LoginDialog(self, -1, u"PyQQ登录窗口", size=(350, 200),
+        dlg = LoginDialog(self, -1, u"Python-QQ登录窗口", size=(350, 200),
                          #style = wxCAPTION | wxSYSTEM_MENU | wxTHICK_FRAME
                          style = wx.DEFAULT_DIALOG_STYLE
                          )
@@ -265,22 +357,35 @@ class GUIFrame(wx.Frame) :
             qid = int(dlg.qid.GetValue().strip())
             pwd = dlg.pwd.GetValue().strip()
 
-            qq_user = qqlib.qq(qid, pwd, self.log)
-            self.conn = GuiProtocol(qq_user)
+            self.qq = qqlib.qq(qid, pwd, self.log)
+            self.conn = GuiProtocol(self.qq)
             reactor.listenUDP(0, self.conn)
-            
-            self.log.info("PyQQ starts")
-            self.conn.login()
 
-        dlg.Destroy()
+            self.log.info("Python-QQ starts")
+            self.conn.login()
+            reactor.callLater(1,self.test)
+
+            self.log.info("login success")
+            dlg.Destroy()
+            
+
     ##------------------------------------------
     
     def OnCloseWindow(self, event) :
-        self.Destroy() 
+        try:
+            defer(self.conn.logout())
+            defer(self.conn.logout())
+            defer(self.conn.logout())
+            defer(self.conn.logout())
+            reactor.stop()
+            self.Destroy() 
+        except:
+            reactor.stop()
+            self.Destroy() 
 
 class TestApp(wx.App) :
     def OnInit(self) :
-        frame = GUIFrame(None, -1, 'PyQQ', size = (160, 400))
+        frame = GUIFrame(None, -1, 'Python-QQ', size = (200, 500))
         frame.Show(True)
         self.SetTopWindow(frame)
         return True
