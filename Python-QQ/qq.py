@@ -162,10 +162,10 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
     def on_qq_get_friend_list(self, message):
         if message.body.fields['start'][0]!=65535:
             defer.succeed(self.get_friend_list(message.body.fields['start'][0]))
-            self.qq.friend_list.update(message.body.fields['data'].items())
+            self.qq.friend_list.update(message.body.fields['data'])
 
         else:
-            self.qq.friend_list.update(message.body.fields['data'].items())
+            self.qq.friend_list.update(message.body.fields['data'])
             print "您的好友列表:"
             for i in self.qq.friend_list.keys():
                 print str(i)+':'+self.qq.friend_list[i]['name']
@@ -173,10 +173,10 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
     def on_qq_get_friend_online(self, message):
         if message.body.fields['start'][0]!=255:
             defer.succeed(self.get_friend_online(message.body.fields['start'][0]))
-            self.qq.friend_online.update(message.body.fields['data'].items())
+            self.qq.friend_online.update(message.body.fields['data'])
 
         else:
-            self.qq.friend_online.update(message.body.fields['data'].items())
+            self.qq.friend_online.update(message.body.fields['data'])
             print "您的在线好友列表:"
             for i in self.qq.friend_online.keys():
                 print str(i)+':'+self.qq.friend_list[i]['name']
