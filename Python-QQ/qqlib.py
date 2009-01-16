@@ -102,7 +102,8 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         pass
 
     def on_qq_send(self, message):
-        pass
+        if int(b2a_hex(message.body.fields['status'][0])) != basic.QQ_replay['ok']:
+            self.printl( '消息发送失败')
 
     def on_qq_recv(self, message):
         self.recv(message)
