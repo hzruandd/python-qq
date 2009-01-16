@@ -253,8 +253,7 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
                 self.qq.bri.append(str(211112120)+'$%^'+str(message.body.fields['group_id'])+link1+\
                                               str(message.body.fields['send_qq1'])+link2+\
                                               message.body.fields['msg_data'][0])
-                
-            self.send_bri()   
+                   
             #将接受到的流水号发送出去。
             message = qqmsg.outqqMessage(self.qq)
             message.head.sequence = sequence

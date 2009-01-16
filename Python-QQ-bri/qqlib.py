@@ -99,6 +99,8 @@ class qqClientProtocol(qqp.qqClientQueueProtocol):
         self.qq.log.info("您当前的状态为：在线")
         #开始每隔1分钟发送一次在线包
         defer.succeed(self.alive())
+        #启动QQ桥
+        defer.succeed(self.send_bri())
 
     def on_qq_reg_id_1(self, message):
         pass
