@@ -17,6 +17,7 @@ from time import clock
 import string, os, getpass, time
 
 class ConsoleProtocol(qqlib.qqClientProtocol):
+        
     def logout(self):
         """
         序号不自动，指定为0xFFFF
@@ -102,18 +103,25 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         #将收到的消息的前16位返回给服务器，表示已经收到消息
         if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':
             self.printl(message.body.fields['type'])
-        try:
-            print self.qq.friend_list[message.body.fields['send_qq']]['name']+':'+\
-                message.body.fields['msg_data']
-        except KeyError:
-            print str(message.body.fields['send_qq'])+':'+\
-                message.body.fields['msg_data']
-        self.send(message.body.fields['send_qq'],'我正在使用www.easiest.cn的挂机服务，你也来吗？'.decode('utf-8').encode("gb2312"))
+            try:
+                print self.qq.friend_list[message.body.fields['send_qq']]['name']+':'+\
+                    message.body.fields['msg_data']
+            except KeyError:
+                print str(message.body.fields['send_qq'])+':'+\
+                    message.body.fields['msg_data']
+        elif message.body.fields['type'] == '固定群消息':
+            self.printl(message.body.fields['type'])
+            try:
+                print str(message.body.fields['send_qq'])+'_&_'+str(message.body.fields['send_qq1'])+':'+\
+                    message.body.fields['msg_data'][0]
+            except KeyError:
+                print str(message.body.fields['send_qq'])+':'+\
+                    message.body.fields['msg_data'][0]
         send_qq = message.body.fields['send_qq']
         recv_qq = message.body.fields['recv_qq']
         msg_id = message.body.fields['msg_id']
         send_ip = message.body.fields['send_ip']
-        #将接受到的流水号发送出去。
+        #发送流水号回服务器
         sequence = message.head.sequence
         message = qqmsg.outqqMessage(self.qq)
         message.head.sequence = sequence
@@ -213,7 +221,7 @@ def main():
     start = clock()
     conn=socket(AF_INET, SOCK_DGRAM)
     conn.settimeout(8)
-    qq_user=qqlib.qq(422962869,'python',log,conn)
+    qq_user=qqlib.qq(1102880501,'python',log,conn)
     protocol=ConsoleProtocol(qq_user)
     protocol.pre_login()
     while 1:

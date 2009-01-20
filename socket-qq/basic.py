@@ -72,7 +72,7 @@ nametoid = {}
 for k in commandinfo.keys():
     nametoid[commandinfo[k]] = k
 #所模拟的客户端版本号
-QQ_ver=0x0e1b
+QQ_ver=0x0e2b
 #不需要返回确认包的发送次数,比如退出登录的报文
 QQ_send_unknown=4
 #QQ服务器端的端口号码
