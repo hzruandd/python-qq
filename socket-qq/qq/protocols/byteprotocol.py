@@ -7,25 +7,27 @@ http://wiki.woodpecker.org.cn/moin/Compass
 修改：梅劲松
 """
 
-from twisted.internet import protocol, defer
+from qq.message import qqmsg
+from socket import *
 import struct
 
-class ByteMessageProtocol(protocol.DatagramProtocol):
+class ByteMessageProtocol(socket):
     """二进制流协议处理抽象类"""
-    def __init__(self):
-        # 接收消息的缓冲区
-        self.buffer = ''
 
-    def datagramReceived(self, data,(host, port)):
+    def MessageProcess(self, message):
+        """调用指定的方法来处理收到的消息"""
+        method = getattr(self , "on_%s" % message.msgname, None)
+        return method(message)
+
+    def datagramReceived(self):
         """ 查看并解析PDU(protocol data unit)，
         将消息交给rawMessageReceived来进行处理。
         """
-	defer.succeed(self.MessageReceived(data))
+	packet = self.qq.conn.recvfrom(1024)[0]
+	message = qqmsg.inqqMessage(self.qq)
+        message.loadMessage(packet)
+        self.MessageProcess(message)
 
     def sendData(self, data):
         """将报文发送出去"""
-        self.transport.write(data, self.qq.server)
-
-    def MessageReceived(self,packet):
-        """加载二进制流消息，一定要继承本方法"""
-        pass
+	self.qq.conn.sendto(data.packed(), self.qq.server)
