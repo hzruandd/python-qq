@@ -221,28 +221,28 @@ def main():
     start = clock()
     conn=socket(AF_INET, SOCK_DGRAM)
     conn.settimeout(8)
-    qq_user=qqlib.qq(1102880501,'python',log,conn)
+    if os.name == 'nt':
+        qq_id=int(raw_input('请输入你的QQ号码:'.decode('utf-8').encode("cp936")))
+        pwd=getpass.getpass('请输入你的QQ密码:'.decode('utf-8').encode("cp936"))
+    else:
+        qq_id=int(raw_input('请输入你的QQ号码:'))
+        pwd=raw_input('请输入你的QQ密码:')
+    qq_user=qqlib.qq(qq_id,pwd,log,conn)
     protocol=ConsoleProtocol(qq_user)
-    protocol.pre_login()
-    while 1:
-        protocol.datagramReceived()
-	if qq_user.session != chr(00)*16:
-	    time.sleep(1)
-	    protocol.alive()
-
-    """try:
-        conn=socket(AF_INET, SOCK_DGRAM)
-        conn.settimeout(5)
-        qq_user=qqlib.qq(422962869,'python',log,conn)
-        protocol=ConsoleProtocol(qq_user)
+    try:
+        log.info ('Python-QQ开始运行')
         protocol.pre_login()
-	while 1:
-		protocol.datagramReceived()
     except Exception,ex:
         log.error(ex)
+    while 1:
+        protocol.datagramReceived()
+        if qq_user.session != chr(00)*16:
+            time.sleep(1)
+            protocol.alive()
+        log.error('程序运行失败，程序终止，请和作者联系。')
     log.info( "收到 %d 条", getnum)
     log.info("用时：%.2f 秒", (clock()-start))
-    log.info("每秒：%f条", (nownum / (clock()-start)))"""
+    log.info("每秒：%f条", (nownum / (clock()-start)))
 
 if __name__ == "__main__":
     main()

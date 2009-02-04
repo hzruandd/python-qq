@@ -3,6 +3,7 @@
 from qq.message import qqmsg
 from qq.protocols import byteprotocol
 from socket import *
+import Queue
 import md5
 import util,struct,tea
 
@@ -32,6 +33,8 @@ class qq:
         self.session=chr(00)*16
         #发送消息id需要变化
         self.session_id = 0
+        #是否登陆成功，1为成功
+        self.login=0
         self.friend_list={}
         self.friend_online={}
         #服务器
@@ -46,6 +49,10 @@ class qq:
 class qqClientProtocol(byteprotocol.ByteMessageProtocol):
     """建立一个qq客户机的协议处理"""
     def __init__(self,qq):
+        # 滑动窗口的大小
+        self.WINMAX = 1024
+        # 等待发送的报文队列
+        self.sendQueue = Queue.Queue(self.WINMAX)
         # 已经发出的报文序列ID
         self.sendMsg = []
         # 已经接受的报文序列ID
@@ -96,7 +103,10 @@ class qqClientProtocol(byteprotocol.ByteMessageProtocol):
         pass
 
     def on_qq_send(self, message):
-        pass
+        '''
+        当发送消息后，服务器返回的包中，状态不等于00，则没有发送成功。
+        '''
+        self.send_replay(message)
 
     def on_qq_recv(self, message):
         self.recv(message)
@@ -111,12 +121,18 @@ class qqClientProtocol(byteprotocol.ByteMessageProtocol):
         pass
 
     def on_qq_login(self,message):
+        '''
+        这个也是登陆过程中自动处理的一部分，当登陆成功后，self.qq.login这个属性为1，否则则没有登陆成功。
+        调用了lib后可以通过这个属性来判断是否登陆成功。
+        '''
         if message.body.fields['status'][0]==1:
             self.qq.server=(util.ip2string(message.body.fields['ip']),8000)
             self.pre_login()
         else:
             if message.body.fields['status'][0]==5:
                 print message.body.fields['data'][0]
+            elif message.body.fields['status'][0]==6:
+                self.printl('您的号码[' + str(self.qq.id) + ']可能存在异常情况，已受到限制登录保护，请用标准QQ客户端登陆并激活后才能正常登录。') 
             else:
                 self.printl('登陆成功')
                 self.qq.session=message.body.fields['session']
@@ -127,6 +143,9 @@ class qqClientProtocol(byteprotocol.ByteMessageProtocol):
                 self.sendData(message)
 
     def on_qq_get_friend_list(self, message):
+        '''
+        获取好友列表，根据是否还有下一页来判断，是否继续取好友列表。
+        '''
         if message.body.fields['start'][0]!=65535:
             self.get_friend_list(message.body.fields['start'][0])
             self.qq.friend_list.update(message.body.fields['data'])
@@ -182,6 +201,11 @@ class qqClientProtocol(byteprotocol.ByteMessageProtocol):
         pass
 
     def on_qq_pre_login(self,message):
+        '''
+        当收到登陆令牌后，判断令牌是否正确。
+        然后发送qq_login的报文开始登陆。
+        由于这个部分是自动处理的，所以当发送登陆令牌请求包后，会自动工作到改变在线状态为止。
+        '''
         status=message.body.fields['status']
         pre_len=message.body.fields['pre_len']
         pre=message.body.fields['pre']
@@ -200,7 +224,10 @@ class qqClientProtocol(byteprotocol.ByteMessageProtocol):
         message.body.setField('login_end',a2b_hex(basic.QQ_login_end))
         message.body.setField('end',(416-len(message.body))*chr(00))
         self.sendData(message)
-
+        
+    def on_qq_tmp_op(self,message):
+        pass
+    
     def on_qq_msg_sys(self, message):
         pass
 

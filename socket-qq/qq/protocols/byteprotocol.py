@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 """
 本段程序来源于compass，你可以到这里了解更多：
@@ -9,7 +9,7 @@ http://wiki.woodpecker.org.cn/moin/Compass
 
 from qq.message import qqmsg
 from socket import *
-import struct
+import struct,sys
 
 class ByteMessageProtocol(socket):
     """二进制流协议处理抽象类"""
@@ -23,10 +23,14 @@ class ByteMessageProtocol(socket):
         """ 查看并解析PDU(protocol data unit)，
         将消息交给rawMessageReceived来进行处理。
         """
-	packet = self.qq.conn.recvfrom(1024)[0]
-	message = qqmsg.inqqMessage(self.qq)
-        message.loadMessage(packet)
-        self.MessageProcess(message)
+        try:
+            packet = self.qq.conn.recvfrom(1024)[0]
+            message = qqmsg.inqqMessage(self.qq)
+            message.loadMessage(packet)
+            self.MessageProcess(message)
+        except:
+            self.printl ('网络中断或已失去活动的网络连接，请重新登陆')
+            sys.exit(1)
 
     def sendData(self, data):
         """将报文发送出去"""
