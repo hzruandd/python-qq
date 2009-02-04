@@ -99,6 +99,10 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendData(message)
 
+    def send_replay(self, message):
+        if message.body.fields['status'] == 0:
+            pass
+
     def recv(self, message):
         #将收到的消息的前16位返回给服务器，表示已经收到消息
         if message.body.fields['type'] == '好友消息' or message.body.fields['type'] == '陌生人消息':
@@ -210,39 +214,4 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
 
     def printl(self,str):#转换编码
         if os.name == 'nt':
-            print str.decode('utf-8').encode("cp936") 
-
-
-def main():
-    log=qqlib.initLogging()
-    nownum = 0
-    lastuid = ''
-    getnum = 0
-    start = clock()
-    conn=socket(AF_INET, SOCK_DGRAM)
-    conn.settimeout(8)
-    if os.name == 'nt':
-        qq_id=int(raw_input('请输入你的QQ号码:'.decode('utf-8').encode("cp936")))
-        pwd=getpass.getpass('请输入你的QQ密码:'.decode('utf-8').encode("cp936"))
-    else:
-        qq_id=int(raw_input('请输入你的QQ号码:'))
-        pwd=raw_input('请输入你的QQ密码:')
-    qq_user=qqlib.qq(qq_id,pwd,log,conn)
-    protocol=ConsoleProtocol(qq_user)
-    try:
-        log.info ('Python-QQ开始运行')
-        protocol.pre_login()
-    except Exception,ex:
-        log.error(ex)
-    while 1:
-        protocol.datagramReceived()
-        if qq_user.session != chr(00)*16:
-            time.sleep(1)
-            protocol.alive()
-        log.error('程序运行失败，程序终止，请和作者联系。')
-    log.info( "收到 %d 条", getnum)
-    log.info("用时：%.2f 秒", (clock()-start))
-    log.info("每秒：%f条", (nownum / (clock()-start)))
-
-if __name__ == "__main__":
-    main()
+            print str.decode('utf-8').encode("cp936")
