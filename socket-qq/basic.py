@@ -120,7 +120,7 @@ QQ_friend_list_sorted = 1
 QQ_replay={'ok':0x00, 'pre_ok':0x00, 'redirect':0x01, 'pwd_error':0x05, 'change_status':0x30, 'add_friend_auth':0x30}
 
 #群命令
-GROUP_cmd={'send':0x0A, 'tmp':0x01}
+GROUP_cmd={'send':0x0A, 'tmp':0x01, 'getinfo':0x04, 'getmember':0x0C}
 
 
 

@@ -508,8 +508,8 @@ class outqqMessage(bytemsg.ByteMessage):
     def pack_qq_send_sms(self, fields):
         pass
 
-    def pack_qq_group_cmd(self, fields):
-        struct.pack('>BIH'+str(len(fields['msg_data']))+'s'+\
+    def pack_group_send(self,fields):
+        return struct.pack('>BIH'+str(len(fields['msg_data']))+'s'+\
                 '2sBBBBBH4s',
                 fields['cmd_type'],
                 fields['recv_group'],
@@ -524,6 +524,9 @@ class outqqMessage(bytemsg.ByteMessage):
                 fields['encoding'],
                 fields['info']
                 )
+                
+    def pack_qq_group_cmd(self, fields):
+        
         return struct.pack('>BIH'+str(len(fields['msg_data']))+'s'+\
                 '2sBBBBBH4sB',
                 fields['cmd_type'],

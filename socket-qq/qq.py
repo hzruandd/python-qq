@@ -54,15 +54,19 @@ class qqinput(threading.Thread):
                 self.protocol.printl("输入命令不完整")
             else:
                 self.protocol.send(int(cmd[1]),cmd[2])
+        elif cmd[0]=='groupsend':
+            if len(cmd) != 3:
+                self.protocol.printl("输入命令不完整")
+            else:
+                self.protocol.group_send(int(cmd[1]),cmd[2])
         elif cmd[0]=='list':
-            print dir(self.protocol)
-            self.protocol.friend_list.clear()
+            self.protocol.qq.friend_list.clear()
             self.protocol.get_friend_list(0)
         elif cmd[0]=='online':
-            if len(self.protocol.friend_list) == 0:
+            if len(self.protocol.qq.friend_list) == 0:
                 self.protocol.printl("请先用list命令获取你的好友列表。")
             else:
-                self.protocol.friend_online.clear()
+                self.protocol.qq.friend_online.clear()
                 self.protocol.get_friend_online(0)
         elif cmd[0]=='logout':
             #发送四次
@@ -80,6 +84,7 @@ class qqinput(threading.Thread):
         elif cmd[0]=='help':
             self.protocol.printl('login:登陆你的QQ，并将状态更改为上线。')
             self.protocol.printl('send/qq号码/内容:向指定号码发送消息。')
+            self.protocol.printl('groupsend/群号码/内容:向指定的群发送消息。')
             self.protocol.printl('list:获取你的好友列表。')
             self.protocol.printl('online:获取你的在线好友。')
             self.protocol.printl('logout:将状态更改为离线。')

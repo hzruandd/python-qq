@@ -98,7 +98,27 @@ class ConsoleProtocol(qqlib.qqClientProtocol):
         #尾部分长度固定为9
         message.body.setField('len',len(message.body.fields['msg_data'])+9)
         self.sendData(message)
-
+        
+    def group_send(self, recv_group, msg):
+        #发送固定群消息
+        message = qqmsg.outqqMessage(self.qq)
+        message.setMsgName('qq_group_cmd')
+        self.qq.session_id += 1
+        message.body.setField('cmd_type',basic.GROUP_cmd['send'])
+        message.body.setField('recv_group',recv_group)
+        message.body.setField('len',len(msg)+14)
+        message.body.setField('msg_data',msg)
+        message.body.setField('msg_link',' '+chr(00))
+        message.body.setField('msg_end',9)
+        message.body.setField('msg_red',0)
+        message.body.setField('msg_green',0)
+        message.body.setField('msg_blue',0)
+        message.body.setField('unknown',0)
+        message.body.setField('encoding',0x8602)
+        message.body.setField('info',a2b_hex('cbcecce5'))
+        message.body.setField('end_len',13)
+        self.sendData(message)
+        
     def send_replay(self, message):
         if message.body.fields['status'] == 0:
             pass

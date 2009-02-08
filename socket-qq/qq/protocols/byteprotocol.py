@@ -34,4 +34,4 @@ class ByteMessageProtocol(socket):
 
     def sendData(self, data):
         """将报文发送出去"""
-	self.qq.conn.sendto(data.packed(), self.qq.server)
+        self.qq.conn.sendto(data.packed(), self.qq.server)
