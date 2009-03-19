@@ -112,7 +112,7 @@ def main():
         pwd=getpass.getpass('请输入你的QQ密码:'.decode('utf-8').encode("cp936"))
     else:
         qq_id=int(raw_input('请输入你的QQ号码:'))
-        pwd=raw_input('请输入你的QQ密码:')
+        pwd=getpass.getpass('请输入你的QQ密码:')
     qq_user=qqlib.qq(qq_id,pwd,log,conn)
     protocol=ConsoleProtocol(qq_user)
     try:
@@ -124,9 +124,9 @@ def main():
     threads.append(qqalive(protocol))
     threads.append(qqinput(protocol))
     for t in threads:
+        t.setDaemon(True)
         t.start()
-    for t in threads:
-        t.join()
+    threads[2].join()
     log.error('程序运行结束或失败，如有异常情况请和作者联系。')
     log.info( "收到 %d 条", getnum)
     log.info("用时：%.2f 秒", (clock()-start))
